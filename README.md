@@ -57,6 +57,8 @@ or use other version, from example a cdn from https://www.jsdelivr.com/package/n
     OnBarcodeReaded="BarcodeReaded"
 />
 
+<h4>@LocalBarcodeText</h4>
+
 @code {
     private string LocalBarcodeText;
 
