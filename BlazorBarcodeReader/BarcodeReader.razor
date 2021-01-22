@@ -1,0 +1,109 @@
+﻿@using Microsoft.JSInterop
+@using Microsoft.JSInterop.Implementation
+
+@inject IJSRuntime jsRuntime
+@implements IAsyncDisposable
+
+<div>
+    <video id="zxingVideo" width="@VideoWidth" height="@VideoHeigth" @attributes="AdditionalAttributes"></video>
+    <input id="zxingInput" type="hidden" @onchange="OnCodeReaded" />
+</div>
+
+@code{
+    [Parameter]
+    public EventCallback<string> OnBarcodeReaded { get; set; }
+
+    [Parameter]
+    public int VideoWidth { get; set; } = 300;
+
+    [Parameter]
+    public int VideoHeigth { get; set; } = 200;
+
+    [Parameter]
+    public string InputDevice { get; set; }
+
+    [Parameter]
+    public EventCallback<string> InputDeviceChanged { get; set; }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object> AdditionalAttributes { get; set; }
+
+    public List<string> VideoInputDevices => _videoInputDevices;
+
+    private IJSObjectReference _jsModule;
+    private List<string> _videoInputDevices = new List<string>();
+    private string _inputDevice = null;
+    private bool _starting = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _jsModule = await jsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/BlazorBarcodeReader/BlazorBarcodeReader.js");
+
+        _videoInputDevices = await LoadDevices();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await StartDecoding(InputDevice);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await StopDecoding();
+    }
+
+    public async Task ToggleDevice()
+    {
+        if (_videoInputDevices.Count > 1)
+        {
+            var i = _videoInputDevices.IndexOf(_inputDevice);
+            i++;
+            if (i >= _videoInputDevices.Count)
+            {
+                i = 0;
+            }
+            await StartDecoding(_videoInputDevices[i]);
+        }
+    }
+
+    private async Task<List<string>> LoadDevices()
+    {
+        return await _jsModule.InvokeAsync<List<string>>("listVideoInputNames", "get");
+    }
+
+    private async Task StartDecoding(string inputDevice)
+    {
+        if (!_starting)
+        {
+            _starting = true;
+            try
+            {
+                if (inputDevice != _inputDevice || inputDevice == null)
+                {
+                    _inputDevice = await _jsModule.InvokeAsync<string>("startDecoding", inputDevice, "zxingVideo", "zxingInput");
+
+                    if (InputDevice != _inputDevice)
+                    {
+                        await InputDeviceChanged.InvokeAsync(_inputDevice);
+                    }
+                }
+            }
+            finally
+            {
+                _starting = false;
+            }
+        }
+    }
+
+    private async Task StopDecoding()
+    {
+        await _jsModule.InvokeVoidAsync("stopDecoding");
+    }
+
+    private void OnCodeReaded(ChangeEventArgs args) {
+        if (OnBarcodeReaded.HasDelegate)
+        {
+            OnBarcodeReaded.InvokeAsync(args.Value.ToString());
+        }
+    }
+}

@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <Version>0.2.5</Version>
+    <Authors>Sabit Igde</Authors>
+	<Company />
+	<Description>Barcode Reader component for Blazor using zxing-js Interop</Description>
+	<RepositoryUrl>https://github.com/kattunga/BlazorBarcodeReader</RepositoryUrl>
+	<PackageTags>Blazor Barcode QRCode Reader</PackageTags>
+	<PackageLicenseFile></PackageLicenseFile>
+	<PackageLicenseExpression>MIT</PackageLicenseExpression>
+	<RepositoryType>git</RepositoryType>
+  </PropertyGroup>
+
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components" Version="5.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="5.0.2" />
+  </ItemGroup>
+
+</Project>

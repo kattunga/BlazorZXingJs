@@ -1,0 +1,63 @@
+﻿@page "/"
+@using BlazorBarcodeReader
+
+<h1>Barcode reader example</h1>
+
+<BarcodeReader
+    @ref="barcodereader"
+    VideoWidth="1024"
+    VideoHeigth="768"
+    OnBarcodeReaded="BarcodeReaded"
+    @bind-InputDevice="InputDevice"
+    style="width: 100%; max-width: 640px; height: auto;"
+    class="blazorbarcodereader"
+/>
+
+<h1>device @InputDevice</h1>
+
+@if (barcodereader != null && barcodereader.VideoInputDevices.Count > 1)
+{
+    <button @onclick="ToggleDevice">toggle device</button>
+}
+
+@if (barcodereader == null || barcodereader.VideoInputDevices == null)
+{
+    <p>looking for devices</p>
+}
+else
+{
+    <div id="sourceSelectPanel">
+        <label for="zxingSourceSelect">Change video source:</label>
+        <select id="zxingSourceSelect" class="zxing-video-input" @onchange="ChangeVideoInputSource">
+            @foreach (var videoInputDevice in barcodereader.VideoInputDevices)
+            {
+                <option value="@videoInputDevice">@videoInputDevice</option>
+            }
+        </select>
+    </div>
+
+}
+
+<p>Custom Result : @LocalBarcodeText</p>
+
+@code{
+
+    private BarcodeReader barcodereader;
+
+    private string LocalBarcodeText;
+
+    private string InputDevice;
+
+    private void BarcodeReaded(string code)
+    {
+        LocalBarcodeText = code;
+    }
+
+    private void ChangeVideoInputSource(ChangeEventArgs args) {
+        InputDevice = args.Value.ToString();
+    }
+
+    private async Task ToggleDevice(MouseEventArgs args) {
+        await barcodereader.ToggleDevice();
+    }
+}

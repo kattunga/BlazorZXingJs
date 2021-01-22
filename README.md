@@ -1,6 +1,9 @@
-![Nuget](https://img.shields.io/nuget/v/BlazorBarcodeScanner.ZXing.JS?style=flat-square)
-# BlazorBarcodeScanner
-Barcode Scanner component for Blazor using [zxing-js](https://github.com/zxing-js/library) Interop
+# BlazorBarcodeReader
+Barcode Reader component for Blazor using [zxing-js](https://github.com/zxing-js/library) Interop
+
+This project is based in the work of 
+
+https://github.com/sabitertan/BlazorBarcodeScanner
 
 ## Prerequisites
 
@@ -11,13 +14,13 @@ Before you continue, please make sure you have the latest version of Visual Stud
 ### 1. NuGet packages
 
 ```
-Install-Package BlazorBarcodeScanner.ZXing.JS
+Install-Package BlazorBarcodeReader
 ```
 
 or
 
 ```
-dotnet add package BlazorBarcodeScanner.ZXing.JS
+dotnet add package BlazorBarcodeReader
 ```
 
 ### 2. Refence to JS libraries
@@ -25,8 +28,8 @@ dotnet add package BlazorBarcodeScanner.ZXing.JS
 Add following lines to `wwwroot\index.html` (for server side `_Host.cshtml`) before `</body>` tag.
 
 ```html
-    <script src="_content/BlazorBarcodeScanner.ZXing.JS/zxingjs-0.17.1.index.min.js"></script>
-    <script src="_content/BlazorBarcodeScanner.ZXing.JS/BlazorBarcodeScanner.js"></script>
+    <script src="_content/BlazorBarcodeReader/zxingjs-0.17.1/umd/index.min.js"></script>
+    <script src="_content/BlazorBarcodeReader/BlazorBarcodeReader.js"></script>
 ```
 
 ## Usage
@@ -34,27 +37,23 @@ Add following lines to `wwwroot\index.html` (for server side `_Host.cshtml`) bef
 Add reference to your `.razor` page/component for this library
 
 ```cs
-@using BlazorBarcodeScanner.ZXing.JS
+@using BlazorBarcodeReader
 ```
 
 Add following component ( with `default parameters `) to anywhere you want in your page/component
 
 ```html
-<BlazorBarcodeScanner.ZXing.JS.BarcodeReader />
+<BarcodeReader />
 ```
 
 or with `custom parameters` ( below shows default values of parameters)
 
 ```html
-<BlazorBarcodeScanner.ZXing.JS.BarcodeReader 
-    Title="Scan Barcode from Camera"
-    StartCameraAutomatically="false"
-    ShowStart="true"
-    ShowReset="true"
-    ShowVideoDeviceList="true"
+<BarcodeReader 
     VideoWidth="300"
     VideoHeigth="200"
- />
+    OnBarcodeReaded="BarcodeReaded"
+/>
 
 ```
 
@@ -62,16 +61,10 @@ Library raises a custom event when barcode scanner reads a value from video stre
 
 ```cs
     private string LocalBarcodeText;
-    protected override async Task OnInitializedAsync()
-    {
-        await base.OnInitializedAsync();
-        BlazorBarcodeScanner.ZXing.JS.JsInteropClass.BarcodeReceived += LocalReceivedBarcodeText; // attach to Barcodereceived event
-    }
 
-    private void LocalReceivedBarcodeText(BarcodeReceivedEventArgs args)
+    private void BarcodeReaded(string code)
     {
-        this.LocalBarcodeText = args.BarcodeText;
-        StateHasChanged();
+        LocalBarcodeText = code;
     }
 ```
 
