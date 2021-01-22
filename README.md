@@ -39,39 +39,26 @@ Add following lines to `wwwroot\index.html` (for server side `_Host.cshtml`) bef
     <script src="_content/BlazorBarcodeReader/zxingjs-0.17.1/umd/index.min.js"></script>
 ```
 
-## Usage
+## Example
 
-Add reference to your `.razor` page/component for this library
 
-```cs
+```html
 @using BlazorBarcodeReader
-```
 
-Add following component ( with `default parameters `) to anywhere you want in your page/component
-
-```html
-<BarcodeReader />
-```
-
-or with `custom parameters` ( below shows default values of parameters)
-
-```html
 <BarcodeReader 
     VideoWidth="300"
     VideoHeigth="200"
     OnBarcodeReaded="BarcodeReaded"
 />
 
-```
-
-```cs
+@code {
     private string LocalBarcodeText;
 
     private void BarcodeReaded(string code)
     {
         LocalBarcodeText = code;
     }
-```
+}
 
 ### Supported Formats
 This library uses auto-detect feature of zxing-js library. It supports variety of barcode types. For more information: [zxing-js supported types](https://github.com/zxing-js/library#supported-formats)
