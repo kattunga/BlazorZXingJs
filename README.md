@@ -25,11 +25,18 @@ dotnet add package BlazorBarcodeReader
 
 ### 2. Refence to JS libraries
 
+This component require the umd version of [zxing-js](https://github.com/zxing-js/library) library.
+
+Embeded with the component is 0.17.1 verion but you can use any other version.
+
+you can download or add a cdn link from here:
+
+https://www.jsdelivr.com/package/npm/@zxing/library
+
 Add following lines to `wwwroot\index.html` (for server side `_Host.cshtml`) before `</body>` tag.
 
 ```html
     <script src="_content/BlazorBarcodeReader/zxingjs-0.17.1/umd/index.min.js"></script>
-    <script src="_content/BlazorBarcodeReader/BlazorBarcodeReader.js"></script>
 ```
 
 ## Usage
@@ -56,8 +63,6 @@ or with `custom parameters` ( below shows default values of parameters)
 />
 
 ```
-
-Library raises a custom event when barcode scanner reads a value from video stream, you can attach to that event using example below in `@code` block.
 
 ```cs
     private string LocalBarcodeText;
