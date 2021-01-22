@@ -20,7 +20,7 @@ export async function getDeviceByName (deviceName) {
     var deviceId;
 
     if (devices.length == 0) {
-        return null
+        return deviceId
     }
 
     if (deviceName) {
@@ -30,7 +30,9 @@ export async function getDeviceByName (deviceName) {
             }
         });
     }
-    else {
+
+    if (deviceId === undefined)
+    {
         devices.sort(function(a, b) {
             if (a.label < b.label) return -1;
             if (b.label > a.label) return 1;
@@ -51,13 +53,13 @@ export async function startDecoding (deviceName, videoElementId, targetInputId) 
     codeReader.decodeFromVideoDevice(device.deviceId, videoElementId, (result, err) => {
         if (result) {
             console.log(result);
-            el = document.getElementById(targetInputId);
+            var el = document.getElementById(targetInputId);
             if (el != null) {
                 el.value = result.text;
                 el.dispatchEvent(new Event('change'));
             }
             else {
-                console.log('element '+targetInputId+' not found');
+                console.error('element '+targetInputId+' not found');
             }
         }
         if (err && !(err instanceof ZXing.NotFoundException)) {

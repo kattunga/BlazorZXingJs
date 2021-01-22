@@ -27,19 +27,20 @@ dotnet add package BlazorBarcodeReader
 
 This component require the umd version of [zxing-js](https://github.com/zxing-js/library) library.
 
-Add following lines to `wwwroot\index.html` (for server side `_Host.cshtml`) before `</body>` tag.
+Add following lines to `wwwroot\index.html` (for server side `_Host.cshtml`) before `</body>` tag or 
+before `<script src="_framework/blazor.server.js"></script>` if you need to scan as soon as app start.
 
 You can use embedded version
 
 ```html
-    <script src="_content/BlazorBarcodeReader/zxingjs-0.17.1/umd/index.min.js"></script>
+    <script src="_content/BlazorBarcodeReader/zxingjs-0.18.2/umd/index.min.js"></script>
 ```
 
 or use other version, from example a cdn from https://www.jsdelivr.com/package/npm/@zxing/library
 
 ```html
     <!-- note that you need to double @@ character to scape from razor engine -->
-    <script src="https://cdn.jsdelivr.net/npm/@@zxing/library@@0.18.3/umd/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@@zxing/library@@0.18.2/umd/index.min.js"></script>
 ```
 
 ## Example

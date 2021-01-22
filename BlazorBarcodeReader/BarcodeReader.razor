@@ -1,4 +1,5 @@
-﻿@using Microsoft.JSInterop
+﻿@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.JSInterop
 @using Microsoft.JSInterop.Implementation
 
 @inject IJSRuntime jsRuntime
@@ -9,7 +10,7 @@
     <input id="zxingInput" type="hidden" @onchange="OnCodeReaded" />
 </div>
 
-@code{
+@code {
     [Parameter]
     public EventCallback<string> OnBarcodeReaded { get; set; }
 
@@ -35,11 +36,14 @@
     private string _inputDevice = null;
     private bool _starting = false;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        _jsModule = await jsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/BlazorBarcodeReader/BlazorBarcodeReader.js");
-
-        _videoInputDevices = await LoadDevices();
+        if (firstRender)
+        {
+            _jsModule = await jsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/BlazorBarcodeReader/BlazorBarcodeReader.js");
+            _videoInputDevices = await _jsModule.InvokeAsync<List<string>>("listVideoInputNames", "get");;
+            await StartDecoding(InputDevice);
+        }
     }
 
     protected override async Task OnParametersSetAsync()
@@ -66,14 +70,9 @@
         }
     }
 
-    private async Task<List<string>> LoadDevices()
-    {
-        return await _jsModule.InvokeAsync<List<string>>("listVideoInputNames", "get");
-    }
-
     private async Task StartDecoding(string inputDevice)
     {
-        if (!_starting)
+        if (_jsModule != null && !_starting)
         {
             _starting = true;
             try
@@ -97,7 +96,10 @@
 
     private async Task StopDecoding()
     {
-        await _jsModule.InvokeVoidAsync("stopDecoding");
+        if (_jsModule != null)
+        {
+            await _jsModule.InvokeVoidAsync("stopDecoding");
+        }
     }
 
     private void OnCodeReaded(ChangeEventArgs args) {
