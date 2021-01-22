@@ -1,6 +1,6 @@
-![Nuget](https://img.shields.io/nuget/v/BlazorBarcodeReader?style=flat-square)
-
 ![build Actions Status](https://github.com/kattunga/BlazorBarcodeReader/workflows/build/badge.svg)
+
+[![Nuget](https://img.shields.io/nuget/v/BlazorBarcodeReader?style=flat-square)](https://www.nuget.org/packages/BlazorBarcodeReader/)
 
 # BlazorBarcodeReader
 Barcode Reader component for Blazor using [zxing-js](https://github.com/zxing-js/library) Interop
