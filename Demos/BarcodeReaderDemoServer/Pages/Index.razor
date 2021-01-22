@@ -28,12 +28,11 @@ else
 {
     <div id="sourceSelectPanel">
         <label for="zxingSourceSelect">Change video source:</label>
-        <select id="zxingSourceSelect" class="zxing-video-input" @onchange="ChangeVideoInputSource">
+        <select id="zxingSourceSelect" value="@InputDevice" @onchange="ChangeVideoInputSource">
             @foreach (var videoInputDevice in barcodereader.VideoInputDevices)
             {
                 <option value="@videoInputDevice">@videoInputDevice</option>
             }
-            <option value="camara2">camara2</option>
         </select>
     </div>
 

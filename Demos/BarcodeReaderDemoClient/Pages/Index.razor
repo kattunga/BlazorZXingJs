@@ -3,8 +3,21 @@
 
 <h1>Barcode reader example</h1>
 
+<div id="formatSelectPanel">
+    <label for="zxingFormatSelect">Format reader:</label>
+    <select id="zxingFormatSelect" @bind="CodeFormat">
+        <option value="MultiFormat">Multiformat</option>
+        <option value="Barcode">Barcode</option>
+        <option value="QR">QR</option>
+        <option value="Aztec">Aztec</option>
+        <option value="Datamatrix">Datamatrix</option>
+        <option value="PDF417">PDF417</option>
+    </select>
+</div>
+
 <BarcodeReader
     @ref="barcodereader"
+    Format=@CodeFormat
     VideoWidth="1024"
     VideoHeigth="768"
     OnBarcodeReaded="BarcodeReaded"
@@ -28,14 +41,13 @@ else
 {
     <div id="sourceSelectPanel">
         <label for="zxingSourceSelect">Change video source:</label>
-        <select id="zxingSourceSelect" class="zxing-video-input" @onchange="ChangeVideoInputSource">
+        <select id="zxingSourceSelect" value="@InputDevice" @onchange="ChangeVideoInputSource">
             @foreach (var videoInputDevice in barcodereader.VideoInputDevices)
             {
                 <option value="@videoInputDevice">@videoInputDevice</option>
             }
         </select>
     </div>
-
 }
 
 <p>Custom Result : @LocalBarcodeText</p>
@@ -43,6 +55,8 @@ else
 @code{
 
     private BarcodeReader barcodereader;
+
+    private string CodeFormat = "Barcode";
 
     private string LocalBarcodeText;
 

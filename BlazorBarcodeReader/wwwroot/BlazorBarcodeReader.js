@@ -1,11 +1,53 @@
 // zxing was downloaded from
-// https://www.jsdelivr.com/package/npm/@zxing/library?version=0.17.1
+// https://www.jsdelivr.com/package/npm/@zxing/library?version=0.18.2
 
-var codeReader = new ZXing.BrowserMultiFormatReader();
+var codeReader;
+var codeFormat = "MultiFormat";
+
+export function initLibrary (format) {
+    if (codeReader === undefined || format != codeFormat) {
+        if (format == "Barcode") {
+            stopDecoding();
+            codeReader = new ZXing.BrowserBarcodeReader()
+        }
+        else if (format == "QR") {
+            stopDecoding();
+            codeReader = new ZXing.BrowserQRCodeReader()
+        }
+        else if (format == "Aztec") {
+            stopDecoding();
+            codeReader = new ZXing.BrowserAztecCodeReader()
+        }
+        else if (format == "Datamatrix") {
+            stopDecoding();
+            codeReader = new ZXing.BrowserDatamatrixCodeReader()
+        }
+        else if (format == "PDF417") {
+            stopDecoding();
+            codeReader = new ZXing.BrowserPDF417Reader()
+        }
+        else if (format == "MultiFormat") {
+            stopDecoding();
+            codeReader = new ZXing.BrowserMultiFormatReader();
+        }
+        else {
+            console.error('unknown format '+format);
+            return false;
+        }
+        codeFormat = format;
+        console.log("BarcodeReader initilized with "+format+" format");
+    }
+    return true;
+}
 
 export async function listVideoInputNames () {
-    var devices = await codeReader.listVideoInputDevices();
     var deviceNames = [];
+
+    if (!initLibrary(codeFormat)) {
+        return deviceNames;
+    }
+
+    var devices = await codeReader.listVideoInputDevices();
 
     devices.forEach(element => {
         deviceNames.push(element.label);
@@ -16,11 +58,16 @@ export async function listVideoInputNames () {
 }
 
 export async function getDeviceByName (deviceName) {
-    var devices = await codeReader.listVideoInputDevices();
     var deviceId;
 
+    if (!initLibrary(codeFormat)) {
+        return deviceId;
+    }
+
+    var devices = await codeReader.listVideoInputDevices();
+
     if (devices.length == 0) {
-        return deviceId
+        return deviceId;
     }
 
     if (deviceName) {
@@ -44,7 +91,10 @@ export async function getDeviceByName (deviceName) {
     return deviceId;
 }
 
-export async function startDecoding (deviceName, videoElementId, targetInputId) {
+export async function startDecoding (deviceName, format, videoElementId, targetInputId) {
+    if (!initLibrary(format)) {
+        return null;
+    }
 
     codeReader.reset();
 
@@ -73,6 +123,8 @@ export async function startDecoding (deviceName, videoElementId, targetInputId) 
 }
 
 export function stopDecoding () {
-    codeReader.reset();
-    console.log('Reset.');
+    if (codeReader !== undefined) {
+        codeReader.reset();
+        console.log('Reset.');
+    }
 }

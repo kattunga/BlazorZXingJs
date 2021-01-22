@@ -15,6 +15,9 @@
     public EventCallback<string> OnBarcodeReaded { get; set; }
 
     [Parameter]
+    public string Format { get; set; }
+
+    [Parameter]
     public int VideoWidth { get; set; } = 300;
 
     [Parameter]
@@ -34,6 +37,7 @@
     private IJSObjectReference _jsModule;
     private List<string> _videoInputDevices = new List<string>();
     private string _inputDevice = null;
+    private string _format = null;
     private bool _starting = false;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -41,6 +45,7 @@
         if (firstRender)
         {
             _jsModule = await jsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/BlazorBarcodeReader/BlazorBarcodeReader.js");
+            await _jsModule.InvokeVoidAsync("initLibrary", Format);
             _videoInputDevices = await _jsModule.InvokeAsync<List<string>>("listVideoInputNames", "get");;
             await StartDecoding(InputDevice);
         }
@@ -48,6 +53,7 @@
 
     protected override async Task OnParametersSetAsync()
     {
+        Format = Format ?? "MultiFormat";
         await StartDecoding(InputDevice);
     }
 
@@ -77,9 +83,10 @@
             _starting = true;
             try
             {
-                if (inputDevice != _inputDevice || inputDevice == null)
+                if (inputDevice == null || inputDevice != _inputDevice || Format != _format)
                 {
-                    _inputDevice = await _jsModule.InvokeAsync<string>("startDecoding", inputDevice, "zxingVideo", "zxingInput");
+                    _format = Format;
+                    _inputDevice = await _jsModule.InvokeAsync<string>("startDecoding", inputDevice, _format, "zxingVideo", "zxingInput");
 
                     if (InputDevice != _inputDevice)
                     {
