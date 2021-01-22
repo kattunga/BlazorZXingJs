@@ -25,7 +25,7 @@ or
 dotnet add package BlazorBarcodeReader
 ```
 
-### 2. Refence to JS libraries
+### 2. Refence to ZXing JS library
 
 This component require the umd version of [zxing-js](https://github.com/zxing-js/library) library.
 
