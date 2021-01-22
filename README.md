@@ -1,3 +1,5 @@
+![Nuget](https://img.shields.io/nuget/v/BlazorBarcodeReader?style=flat-square)
+
 # BlazorBarcodeReader
 Barcode Reader component for Blazor using [zxing-js](https://github.com/zxing-js/library) Interop
 
