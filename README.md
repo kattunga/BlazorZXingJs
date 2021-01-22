@@ -59,6 +59,7 @@ Add following lines to `wwwroot\index.html` (for server side `_Host.cshtml`) bef
         LocalBarcodeText = code;
     }
 }
+```
 
 ### Supported Formats
 This library uses auto-detect feature of zxing-js library. It supports variety of barcode types. For more information: [zxing-js supported types](https://github.com/zxing-js/library#supported-formats)
