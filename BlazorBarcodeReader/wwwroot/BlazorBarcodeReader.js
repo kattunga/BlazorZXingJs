@@ -2,40 +2,87 @@
 // https://www.jsdelivr.com/package/npm/@zxing/library?version=0.18.2
 
 var codeReader;
-var codeFormat = "MultiFormat";
+var codeFormat;
 
 export function initLibrary (format) {
+
     if (codeReader === undefined || format != codeFormat) {
-        if (format == "Barcode") {
-            stopDecoding();
-            codeReader = new ZXing.BrowserBarcodeReader()
-        }
-        else if (format == "QR") {
-            stopDecoding();
-            codeReader = new ZXing.BrowserQRCodeReader()
-        }
-        else if (format == "Aztec") {
-            stopDecoding();
-            codeReader = new ZXing.BrowserAztecCodeReader()
-        }
-        else if (format == "Datamatrix") {
-            stopDecoding();
-            codeReader = new ZXing.BrowserDatamatrixCodeReader()
-        }
-        else if (format == "PDF417") {
-            stopDecoding();
-            codeReader = new ZXing.BrowserPDF417Reader()
-        }
-        else if (format == "MultiFormat") {
-            stopDecoding();
-            codeReader = new ZXing.BrowserMultiFormatReader();
+
+        stopDecoding();
+
+        if (format) {
+            var formatList = format.split(',');
+            var formatMaps = [];
+
+
+            if (formatList.includes('AZTEC')) {
+                formatMaps.push(ZXing.BarcodeFormat.AZTEC);
+            }
+            if (formatList.includes('CODABAR')) {
+                formatMaps.push(ZXing.BarcodeFormat.CODABAR);
+            }
+            if (formatList.includes('CODE_39')) {
+                formatMaps.push(ZXing.BarcodeFormat.CODE_39);
+            }
+            if (formatList.includes('CODE_93')) {
+                formatMaps.push(ZXing.BarcodeFormat.CODE_93);
+            }
+            if (formatList.includes('CODE_128')) {
+                formatMaps.push(ZXing.BarcodeFormat.CODE_128);
+            }
+            if (formatList.includes('DATA_MATRIX')) {
+                formatMaps.push(ZXing.BarcodeFormat.DATA_MATRIX);
+            }
+            if (formatList.includes('EAN_8')) {
+                formatMaps.push(ZXing.BarcodeFormat.EAN_8);
+            }
+            if (formatList.includes('EAN_13')) {
+                formatMaps.push(ZXing.BarcodeFormat.EAN_13);
+            }
+            if (formatList.includes('ITF')) {
+                formatMaps.push(ZXing.BarcodeFormat.ITF);
+            }
+            if (formatList.includes('MAXICODE')) {
+                formatMaps.push(ZXing.BarcodeFormat.MAXICODE);
+            }
+            if (formatList.includes('PDF_417')) {
+                formatMaps.push(ZXing.BarcodeFormat.PDF_417);
+            }
+            if (formatList.includes('QR_CODE')) {
+                formatMaps.push(ZXing.BarcodeFormat.QR_CODE);
+            }
+            if (formatList.includes('RSS_14')) {
+                formatMaps.push(ZXing.BarcodeFormat.RSS_14);
+            }
+            if (formatList.includes('RSS_EXPANDED')) {
+                formatMaps.push(ZXing.BarcodeFormat.RSS_EXPANDED);
+            }
+            if (formatList.includes('UPC_A')) {
+                formatMaps.push(ZXing.BarcodeFormat.UPC_A);
+            }
+            if (formatList.includes('UPC_E')) {
+                formatMaps.push(ZXing.BarcodeFormat.UPC_E);
+            }
+            if (formatList.includes('UPC_EAN_EXTENSION')) {
+                formatMaps.push(ZXing.BarcodeFormat.UPC_EAN_EXTENSION);
+            }
+
+            if (formatMaps.length != formatList.length) {
+                console.error("there are wrong formats specified");
+            }
+
+            const hints = new Map();
+            hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, formatMaps);
+
+            codeReader = new ZXing.BrowserMultiFormatReader(hints);
+            console.log("BarcodeReader initilized with "+format+" format");
         }
         else {
-            console.error('unknown format '+format);
-            return false;
+            codeReader = new ZXing.BrowserMultiFormatReader();
+            console.log("BarcodeReader initilized with autodetect format");
         }
+
         codeFormat = format;
-        console.log("BarcodeReader initilized with "+format+" format");
     }
     return true;
 }
@@ -43,7 +90,7 @@ export function initLibrary (format) {
 export async function listVideoInputNames () {
     var deviceNames = [];
 
-    if (!initLibrary(codeFormat)) {
+    if (codeReader === undefined) {
         return deviceNames;
     }
 
@@ -60,7 +107,7 @@ export async function listVideoInputNames () {
 export async function getDeviceByName (deviceName) {
     var deviceId;
 
-    if (!initLibrary(codeFormat)) {
+    if (codeReader === undefined) {
         return deviceId;
     }
 
@@ -130,7 +177,6 @@ export async function startDecoding (deviceName, format, videoElementId, targetI
                 console.log('A code was found, but it was in a invalid format.')
             }
         }
-
     })
 
     console.log('Started continous decode from camera with deviceid '+device.label);

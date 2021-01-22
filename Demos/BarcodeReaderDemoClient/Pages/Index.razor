@@ -5,19 +5,17 @@
 
 <div id="formatSelectPanel">
     <label for="zxingFormatSelect">Format reader:</label>
-    <select id="zxingFormatSelect" @bind="CodeFormat">
-        <option value="MultiFormat">Multiformat</option>
-        <option value="Barcode">Barcode</option>
+    <select id="zxingFormatSelect" value="@CodeFormat" @onchange="ChangeCodeFormat">
+        <option value="AUTO">Auto</option>
+        <option value="EAN_13">EAN_13</option>
+        <option value="EAN">EAN_8,EAN_13</option>
         <option value="QR">QR</option>
-        <option value="Aztec">Aztec</option>
-        <option value="Datamatrix">Datamatrix</option>
-        <option value="PDF417">PDF417</option>
     </select>
 </div>
 
 <BarcodeReader
     @ref="barcodereader"
-    Format=@CodeFormat
+    Format="@FormatList"
     VideoWidth="1024"
     VideoHeigth="768"
     OnBarcodeReaded="BarcodeReaded"
@@ -46,6 +44,7 @@ else
             {
                 <option value="@videoInputDevice">@videoInputDevice</option>
             }
+                <option value="camara2">camara2</option>
         </select>
     </div>
 }
@@ -53,10 +52,35 @@ else
 <p>Custom Result : @LocalBarcodeText</p>
 
 @code{
+    private static string DefaultCodeFormat = "EAN";
+
+    private static BarcodeFormat[] GetFormatList(string format)
+    {
+        if (format == "EAN")
+        {
+            return new BarcodeFormat[] {BarcodeFormat.EAN_8, BarcodeFormat.EAN_13};
+        }
+        else
+        if (format == "EAN_13")
+        {
+            return new BarcodeFormat[] {BarcodeFormat.EAN_13};
+        }
+        else
+        if (format == "QR")
+        {
+            return new BarcodeFormat[] {BarcodeFormat.QR_CODE};
+        }
+        else
+        {
+            return null;
+        }
+    }
 
     private BarcodeReader barcodereader;
 
-    private string CodeFormat = "Barcode";
+    private string CodeFormat = DefaultCodeFormat;
+
+    private BarcodeFormat[] FormatList = GetFormatList(DefaultCodeFormat);
 
     private string LocalBarcodeText;
 
@@ -67,11 +91,19 @@ else
         LocalBarcodeText = code;
     }
 
-    private void ChangeVideoInputSource(ChangeEventArgs args) {
+    private void ChangeCodeFormat(ChangeEventArgs args)
+    {
+        CodeFormat = args.Value.ToString();
+        FormatList = GetFormatList(CodeFormat);
+    }
+
+    private void ChangeVideoInputSource(ChangeEventArgs args)
+    {
         InputDevice = args.Value.ToString();
     }
 
-    private async Task ToggleDevice(MouseEventArgs args) {
+    private async Task ToggleDevice(MouseEventArgs args)
+    {
         await barcodereader.ToggleDevice();
     }
 }
