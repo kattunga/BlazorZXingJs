@@ -112,9 +112,25 @@ export async function startDecoding (deviceName, format, videoElementId, targetI
                 console.error('element '+targetInputId+' not found');
             }
         }
-        if (err && !(err instanceof ZXing.NotFoundException)) {
-            console.error(err);
+        if (err) {
+            // As long as this error belongs into one of the following categories
+            // the code reader is going to continue as excepted. Any other error
+            // will stop the decoding loop.
+            //
+            // Excepted Exceptions:
+            //
+            //  - NotFoundException
+            //  - ChecksumException
+            //  - FormatException
+            if (err instanceof ZXing.ChecksumException) {
+                console.log('A code was found, but it\'s read value was not valid.')
+            }
+
+            if (err instanceof ZXing.FormatException) {
+                console.log('A code was found, but it was in a invalid format.')
+            }
         }
+
     })
 
     console.log('Started continous decode from camera with deviceid '+device.label);
