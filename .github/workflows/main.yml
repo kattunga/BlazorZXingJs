@@ -31,3 +31,10 @@ jobs:
     - name: Build
       run: dotnet build --configuration Release --no-restore
       working-directory: ./BlazorBarcodeReader
+    - name: publish on version change
+      id: publish_nuget
+      uses: rohith/publish-nuget@v2
+      with:
+        # Filepath of the project to be packaged, relative to root of repository
+        PROJECT_FILE_PATH: BlazorBarcodeReader/BlazorBarcodeReader.csproj
+        NUGET_KEY: ${{secrets.NUGET_API_KEY}}
