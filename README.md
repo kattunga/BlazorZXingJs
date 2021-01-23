@@ -49,6 +49,8 @@ or use other version, from example a cdn from https://www.jsdelivr.com/package/n
 
 
 ```html
+@page "/"
+
 @using BlazorBarcodeReader
 
 <BarcodeReader 
