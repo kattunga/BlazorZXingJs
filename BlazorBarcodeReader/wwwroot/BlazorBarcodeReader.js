@@ -6,9 +6,15 @@ var codeFormat;
 
 export function initLibrary (format) {
 
-    if (codeReader === undefined || format != codeFormat) {
+    if (window.ZXing === undefined) {
+        return;
+    }
 
-        stopDecoding();
+    if (codeReader !== undefined) {
+        codeReader.reset();
+    }
+
+    if (codeReader === undefined || format != codeFormat) {
 
         if (format) {
             var formatList = format.split(',');
@@ -84,7 +90,6 @@ export function initLibrary (format) {
 
         codeFormat = format;
     }
-    return true;
 }
 
 export async function listVideoInputNames () {
@@ -139,11 +144,12 @@ export async function getDeviceByName (deviceName) {
 }
 
 export async function startDecoding (deviceName, format, videoElementId, targetInputId) {
-    if (!initLibrary(format)) {
+
+    initLibrary(format);
+
+    if (codeReader === undefined) {
         return null;
     }
-
-    codeReader.reset();
 
     var device = await getDeviceByName(deviceName);
 
