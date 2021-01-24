@@ -10,7 +10,7 @@ This is a Blazor wrapper arround [zxing-js](https://github.com/zxing-js/library)
 
 ## Prerequisites
 
-net 5.0 or newer.
+NET 5.0 or newer
 
 ## Installation
 
@@ -30,20 +30,28 @@ dotnet add package BlazorZXingJs
 
 This component requires the umd version of [zxing-js](https://github.com/zxing-js/library) library.
 
-Add following lines to `wwwroot\index.html` (for server side `_Host.cshtml`) before `</body>` tag or 
-before `<script src="_framework/blazor.server.js"></script>` if you need to scan as soon as app start.
-
-You can use embedded version
-
+For blazor wasm, in `wwwroot\index.html`
 ```html
-    <script src="_content/BlazorBarcodeReader/zxingjs-0.18.2/umd/index.min.js"></script>
+...
+<body>
+    ...
+    <script src="_framework/blazor.webassembly.js"></script>
+
+    <!-- if you need to scan as soon as the app start, add this before _framework/blazor.webassembly.js -->
+    <script src="_content/BlazorZXingJs/zxingjs-0.18.2/umd/index.min.js"></script>
+</body>
 ```
 
-or use other version, from example a cdn from https://www.jsdelivr.com/package/npm/@zxing/library
-
+For blazor server, in `Pages/_Host.cshtml`
 ```html
-    <!-- note that you need to double @@ character to scape from razor engine -->
-    <script src="https://cdn.jsdelivr.net/npm/@@zxing/library@@0.18.2/umd/index.min.js"></script>
+...
+<body>
+    ...
+    <script src="_framework/blazor.server.js"></script>    
+
+    <!-- if you need to scan as soon as the app start, add this before _framework/blazor.server.js -->
+    <script src="_content/BlazorZXingJs/zxingjs-0.18.2/umd/index.min.js"></script>
+</body>
 ```
 
 ## Example
@@ -54,7 +62,7 @@ or use other version, from example a cdn from https://www.jsdelivr.com/package/n
 
 @using BlazorZXingJs
 
-<BarcodeReader 
+<MultiFormatReader 
     VideoWidth="300"
     VideoHeigth="200"
     OnBarcodeReaded="BarcodeReaded"
