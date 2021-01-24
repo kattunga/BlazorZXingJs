@@ -27,14 +27,14 @@ jobs:
         dotnet-version: 5.0.102
     - name: Install dependencies
       run: dotnet restore
-      working-directory: ./BlazorBarcodeReader
+      working-directory: ./BlazorZXingJs
     - name: Build
       run: dotnet build --configuration Release --no-restore
-      working-directory: ./BlazorBarcodeReader
+      working-directory: ./BlazorZXingJs
     - name: publish on version change
       id: publish_nuget
       uses: rohith/publish-nuget@v2
       with:
         # Filepath of the project to be packaged, relative to root of repository
-        PROJECT_FILE_PATH: BlazorBarcodeReader/BlazorBarcodeReader.csproj
+        PROJECT_FILE_PATH: BlazorZXingJs/BlazorZXingJs.csproj
         NUGET_KEY: ${{secrets.NUGET_API_KEY}}
