@@ -8,6 +8,10 @@ Barcode/QRCode Reader and QRCode writer components.
 
 This is a Blazor wrapper arround [zxing-js](https://github.com/zxing-js/library) library.
 
+### Supported Formats
+
+This library uses auto-detect feature of zxing-js library. It supports variety of barcode types. For more information: [zxing-js supported types](https://github.com/zxing-js/library#supported-formats)
+
 ## Prerequisites
 
 NET 5.0 or newer
@@ -80,9 +84,6 @@ For blazor server, in `Pages/_Host.cshtml`
 }
 ```
 
-### Supported Formats
-
-This library uses auto-detect feature of zxing-js library. It supports variety of barcode types. For more information: [zxing-js supported types](https://github.com/zxing-js/library#supported-formats)
 
 ### Credits
 
