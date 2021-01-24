@@ -12,8 +12,9 @@ export function initLibrary () {
     }
 }
 
-export function writeCode (selector, contents, width, height) {
-    if (codeWriter !== undefined ) {
-        codeWriter.writeToDom(selector, contents, width, height);
+export function writeCode (container, contents, width, height) {
+    container.innerHTML = "";
+    if (codeWriter !== undefined && contents) {
+        codeWriter.writeToDom(container, contents, width, height);
     }
 }

@@ -32,15 +32,10 @@
             _jsModule = await jsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/BlazorZXingJs/QRCodeWriter.js");
             await _jsModule.InvokeVoidAsync("initLibrary");
         }
-    }
-
-    protected override async Task OnParametersSetAsync()
-    {
         if (Text != _text)
         {
             _text = Text;
             await _jsModule.InvokeVoidAsync("writeCode", codeContainer, Text, Width, Heigth);
         }
     }
-
 }
