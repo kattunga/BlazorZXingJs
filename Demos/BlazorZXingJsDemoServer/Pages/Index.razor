@@ -1,0 +1,108 @@
+@page "/"
+@using BlazorZXingJs
+
+<div id="formatSelectPanel">
+    <label for="zxingFormatSelect">Format reader:</label>
+    <select id="zxingFormatSelect" value="@CodeFormat" @onchange="ChangeCodeFormat">
+        <option value="AUTO">Auto</option>
+        <option value="EAN_13">EAN_13</option>
+        <option value="EAN">EAN_8,EAN_13</option>
+        <option value="QR">QR</option>
+    </select>
+</div>
+
+<MultiFormatReader
+    @ref="barcodereader"
+    Format="@FormatList"
+    VideoWidth="640"
+    VideoHeigth="480"
+    OnBarcodeReaded="BarcodeReaded"
+    @bind-InputDevice="InputDevice"
+    style="width: 100%; max-width: 320px; height: auto;"
+    class="blazorbarcodereader"
+/>
+
+<h4>device @InputDevice</h4>
+
+@if (barcodereader != null && barcodereader.VideoInputDevices.Count > 1)
+{
+    <button @onclick="ToggleDevice">toggle device</button>
+}
+
+@if (barcodereader == null || barcodereader.VideoInputDevices == null)
+{
+    <p>looking for devices</p>
+}
+else
+{
+    <div id="sourceSelectPanel">
+        <label for="zxingSourceSelect">Change video source:</label>
+        <select id="zxingSourceSelect" value="@InputDevice" @onchange="ChangeVideoInputSource">
+            @foreach (var videoInputDevice in barcodereader.VideoInputDevices)
+            {
+                <option value="@videoInputDevice">@videoInputDevice</option>
+            }
+        </select>
+    </div>
+}
+
+<p>Result : @LocalBarcodeText</p>
+
+<QRCodeWriter Text="@LocalBarcodeText" Width="200" Heigth="200"></QRCodeWriter>
+
+@code{
+    private static string DefaultCodeFormat = "EAN";
+
+    private static BarcodeFormat[] GetFormatList(string format)
+    {
+        if (format == "EAN")
+        {
+            return new BarcodeFormat[] {BarcodeFormat.EAN_8, BarcodeFormat.EAN_13};
+        }
+        else
+        if (format == "EAN_13")
+        {
+            return new BarcodeFormat[] {BarcodeFormat.EAN_13};
+        }
+        else
+        if (format == "QR")
+        {
+            return new BarcodeFormat[] {BarcodeFormat.QR_CODE};
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+    private MultiFormatReader barcodereader;
+
+    private string CodeFormat = DefaultCodeFormat;
+
+    private BarcodeFormat[] FormatList = GetFormatList(DefaultCodeFormat);
+
+    private string LocalBarcodeText;
+
+    private string InputDevice;
+
+    private void BarcodeReaded(string code)
+    {
+        LocalBarcodeText = code;
+    }
+
+    private void ChangeCodeFormat(ChangeEventArgs args)
+    {
+        CodeFormat = args.Value.ToString();
+        FormatList = GetFormatList(CodeFormat);
+    }
+
+    private void ChangeVideoInputSource(ChangeEventArgs args)
+    {
+        InputDevice = args.Value.ToString();
+    }
+
+    private async Task ToggleDevice(MouseEventArgs args)
+    {
+        await barcodereader.ToggleDevice();
+    }
+}

@@ -1,0 +1,46 @@
+@using Microsoft.JSInterop
+
+<div @ref="codeContainer" @attributes="AdditionalAttributes"></div>
+
+@code
+{
+    [Parameter]
+    public string Text {get; set;}
+
+    [Parameter]
+    public int Width { get; set; } = 200;
+
+    [Parameter]
+    public int Heigth { get; set; } = 200;
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object> AdditionalAttributes { get; set; }
+
+    [Inject]
+    public IJSRuntime jsRuntime { get; set; }
+
+    private IJSObjectReference _jsModule;
+
+    private ElementReference codeContainer;
+
+    private string _text;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _jsModule = await jsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/BlazorZXingJs/QRCodeWriter.js");
+            await _jsModule.InvokeVoidAsync("initLibrary");
+        }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Text != _text)
+        {
+            _text = Text;
+            await _jsModule.InvokeVoidAsync("writeCode", codeContainer, Text, Width, Heigth);
+        }
+    }
+
+}
