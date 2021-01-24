@@ -10,7 +10,7 @@ This is a Blazor wrapper arround [zxing-js](https://github.com/zxing-js/library)
 
 ### Supported Formats
 
-This library uses auto-detect feature of zxing-js library. It supports variety of barcode types. For more information: [zxing-js supported types](https://github.com/zxing-js/library#supported-formats)
+It supports variety of barcode and 2d code types. For more information: [zxing-js supported types](https://github.com/zxing-js/library#supported-formats)
 
 ## Prerequisites
 
