@@ -10,7 +10,7 @@ namespace BlazorZXingJs
     public partial class MultiFormatReader: IAsyncDisposable
     {
         [Parameter]
-        public EventCallback<string> OnBarcodeReaded { get; set; }
+        public EventCallback<string> OnBarcodeRead { get; set; }
 
         [Parameter]
         public BarcodeFormat[] Format
@@ -139,10 +139,10 @@ namespace BlazorZXingJs
             }
         }
 
-        private async Task OnCodeReaded(ChangeEventArgs args) {
-            if (OnBarcodeReaded.HasDelegate)
+        private async Task OnCodeRead(ChangeEventArgs args) {
+            if (OnBarcodeRead.HasDelegate)
             {
-                await OnBarcodeReaded.InvokeAsync(args.Value.ToString());
+                await OnBarcodeRead.InvokeAsync(args.Value.ToString());
             }
         }
     }
