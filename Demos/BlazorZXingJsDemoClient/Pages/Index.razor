@@ -16,7 +16,7 @@
     Format="@FormatList"
     VideoWidth="640"
     VideoHeigth="480"
-    OnBarcodeReaded="BarcodeReaded"
+    OnBarcodeRead="BarcodeRead"
     @bind-InputDevice="InputDevice"
     style="width: 100%; max-width: 320px; height: auto;"
     class="blazorbarcodereader"
@@ -85,7 +85,7 @@ else
 
     private string InputDevice;
 
-    private void BarcodeReaded(string code)
+    private void BarcodeRead(string code)
     {
         LocalBarcodeText = code;
     }
