@@ -51,25 +51,26 @@ For blazor server, in `Pages/_Host.cshtml`
 ...
 <body>
     ...
-    <script src="_framework/blazor.server.js"></script>    
+    <script src="_framework/blazor.server.js"></script>
 
     <!-- if you need to scan as soon as the app start, add this before _framework/blazor.server.js -->
     <script src="_content/BlazorZXingJs/zxingjs-0.18.2/umd/index.min.js"></script>
 </body>
 ```
 
-## Example
+## Examples
 
+### Read code with autodetect
 
 ```html
 @page "/"
 
 @using BlazorZXingJs
 
-<MultiFormatReader 
+<MultiFormatReader
     VideoWidth="300"
     VideoHeigth="200"
-    OnBarcodeReaded="BarcodeReaded"
+    OnBarcodeRead="BarcodeRead"
 />
 
 <h4>@LocalBarcodeText</h4>
@@ -77,13 +78,26 @@ For blazor server, in `Pages/_Host.cshtml`
 @code {
     private string LocalBarcodeText;
 
-    private void BarcodeReaded(string code)
+    private void BarcodeRead(string code)
     {
         LocalBarcodeText = code;
     }
 }
 ```
 
+### Write QRCode
+
+```html
+@page "/"
+
+@using BlazorZXingJs
+
+<QRCodeWriter Text="@LocalBarcodeText" Width="200" Heigth="200"></QRCodeWriter>
+
+@code {
+    private string LocalBarcodeText = "this is a message";
+
+}
 
 ### Credits
 
