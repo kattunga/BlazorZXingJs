@@ -55,12 +55,16 @@ namespace BlazorZXingJs
         [Inject]
         public IJSRuntime jsRuntime { get; set; }
 
+        public bool Initialized => _initialized;
         public List<string> VideoInputDevices => _videoInputDevices;
+        public bool CameraPermission => _cameraPermission;
 
         private IJSObjectReference _jsModule;
         private string _inputDevice = null;
         private BarcodeFormat[] _format;
         private List<string> _videoInputDevices = new List<string>();
+        private bool _initialized;
+        private bool _cameraPermission;
         private bool _starting = false;
         private bool _shouldRestart;
 
@@ -70,7 +74,9 @@ namespace BlazorZXingJs
             {
                 _jsModule = await jsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/BlazorZXingJs/MultiFormatReader.js");
                 await _jsModule.InvokeVoidAsync("initLibrary", FormatToList(_format));
-                _videoInputDevices = await _jsModule.InvokeAsync<List<string>>("listVideoInputNames", "get");;
+                _cameraPermission = await _jsModule.InvokeAsync<bool>("checkVideoPermission");
+                _videoInputDevices = await _jsModule.InvokeAsync<List<string>>("listVideoInputNames");
+                _initialized = true;
             }
             if (firstRender || _shouldRestart)
             {

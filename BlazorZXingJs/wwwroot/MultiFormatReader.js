@@ -92,6 +92,19 @@ export function initLibrary (format) {
     }
 }
 
+export async function checkVideoPermission () {
+    try {
+        await navigator.mediaDevices.getUserMedia({
+            video: true,
+            audio: false
+        });
+        return true;
+    } catch(err) {
+        console.log(err);
+        return false;
+    }
+}
+
 export async function listVideoInputNames () {
     var deviceNames = [];
 
@@ -153,39 +166,44 @@ export async function startDecoding (deviceName, format, videoElementId, targetI
 
     var device = await getDeviceByName(deviceName);
 
-    codeReader.decodeFromVideoDevice(device.deviceId, videoElementId, (result, err) => {
-        if (result) {
-            console.log(result);
-            var el = document.getElementById(targetInputId);
-            if (el != null) {
-                el.value = result.text;
-                el.dispatchEvent(new Event('change'));
+    if (device.deviceId) {
+        codeReader.decodeFromVideoDevice(device.deviceId, videoElementId, (result, err) => {
+            if (result) {
+                console.log(result);
+                var el = document.getElementById(targetInputId);
+                if (el != null) {
+                    el.value = result.text;
+                    el.dispatchEvent(new Event('change'));
+                }
+                else {
+                    console.error('element '+targetInputId+' not found');
+                }
             }
-            else {
-                console.error('element '+targetInputId+' not found');
-            }
-        }
-        if (err) {
-            // As long as this error belongs into one of the following categories
-            // the code reader is going to continue as excepted. Any other error
-            // will stop the decoding loop.
-            //
-            // Excepted Exceptions:
-            //
-            //  - NotFoundException
-            //  - ChecksumException
-            //  - FormatException
-            if (err instanceof ZXing.ChecksumException) {
-                console.log('A code was found, but it\'s read value was not valid.')
-            }
+            if (err) {
+                // As long as this error belongs into one of the following categories
+                // the code reader is going to continue as excepted. Any other error
+                // will stop the decoding loop.
+                //
+                // Excepted Exceptions:
+                //
+                //  - NotFoundException
+                //  - ChecksumException
+                //  - FormatException
+                if (err instanceof ZXing.ChecksumException) {
+                    console.log('A code was found, but it\'s read value was not valid.')
+                }
 
-            if (err instanceof ZXing.FormatException) {
-                console.log('A code was found, but it was in a invalid format.')
+                if (err instanceof ZXing.FormatException) {
+                    console.log('A code was found, but it was in a invalid format.')
+                }
             }
-        }
-    })
+        })
 
-    console.log('Started continous decode from camera with deviceid '+device.label);
+        console.log('Started continous decode from camera '+device.label);
+    }
+    else {
+        console.log(`Permision denied to camera `+device.label)
+    }
 
     return device.label;
 }
