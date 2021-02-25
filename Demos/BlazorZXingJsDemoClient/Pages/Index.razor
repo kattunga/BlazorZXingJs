@@ -22,35 +22,28 @@
     class="blazorbarcodereader"
 />
 
-@if (barcodereader != null && barcodereader.Initialized)
+<h4>device @InputDevice</h4>
+
+@if (barcodereader != null && barcodereader.VideoInputDevices.Count > 1)
 {
-    @if (barcodereader.VideoInputDevices.Count == 0)
-    {
-        <p>No camera devices available</p>
-    }
-    else if (!barcodereader.CameraPermission)
-    {
-        <p>Please allow permision to camera</p>
-    }
-    else
-    {
-        <h4>device @InputDevice</h4>
+    <button @onclick="ToggleDevice">toggle device</button>
+}
 
-        @if (barcodereader.VideoInputDevices.Count > 1)
-        {
-            <button @onclick="ToggleDevice">toggle device</button>
-        }
-
-        <div id="sourceSelectPanel">
-            <label for="zxingSourceSelect">Change video source:</label>
-            <select id="zxingSourceSelect" value="@InputDevice" @onchange="ChangeVideoInputSource">
-                @foreach (var videoInputDevice in barcodereader.VideoInputDevices)
-                {
-                    <option value="@videoInputDevice">@videoInputDevice</option>
-                }
-            </select>
-        </div>
-    }
+@if (barcodereader == null || barcodereader.VideoInputDevices == null)
+{
+    <p>looking for devices</p>
+}
+else
+{
+    <div id="sourceSelectPanel">
+        <label for="zxingSourceSelect">Change video source:</label>
+        <select id="zxingSourceSelect" value="@InputDevice" @onchange="ChangeVideoInputSource">
+            @foreach (var videoInputDevice in barcodereader.VideoInputDevices)
+            {
+                <option value="@videoInputDevice">@videoInputDevice</option>
+            }
+        </select>
+    </div>
 }
 
 <p>Result : @LocalBarcodeText</p>

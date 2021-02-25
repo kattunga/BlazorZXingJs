@@ -74,9 +74,7 @@ namespace BlazorZXingJs
             {
                 _jsModule = await jsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/BlazorZXingJs/MultiFormatReader.js");
                 await _jsModule.InvokeVoidAsync("initLibrary", FormatToList(_format));
-                _cameraPermission = await _jsModule.InvokeAsync<bool>("checkVideoPermission");
-                _videoInputDevices = await _jsModule.InvokeAsync<List<string>>("listVideoInputNames");
-                _initialized = true;
+                _videoInputDevices = await _jsModule.InvokeAsync<List<string>>("listVideoInputNames", "get");;
             }
             if (firstRender || _shouldRestart)
             {
