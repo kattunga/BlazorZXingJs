@@ -3,7 +3,7 @@
 
 <div id="formatSelectPanel">
     <label for="zxingFormatSelect">Format reader:</label>
-    <select id="zxingFormatSelect" value="@CodeFormat" @onchange="ChangeCodeFormat">
+    <select id="zxingFormatSelect" value="@_codeFormat" @onchange="ChangeCodeFormat">
         <option value="AUTO">Auto</option>
         <option value="EAN_13">EAN_13</option>
         <option value="EAN">EAN_8,EAN_13</option>
@@ -12,43 +12,54 @@
 </div>
 
 <MultiFormatReader
-    @ref="barcodereader"
+    @ref="_barcodereader"
     Format="@FormatList"
-    VideoWidth="640"
+    VideoDeviceId="InputDevice"
     VideoHeigth="480"
+    VideoWidth="640"
+    OnStartVideo="StartVideo"
     OnBarcodeRead="BarcodeRead"
-    @bind-InputDevice="InputDevice"
     style="width: 100%; max-width: 320px; height: auto;"
     class="blazorbarcodereader"
 />
 
-<h4>device @InputDevice</h4>
-
-@if (barcodereader != null && barcodereader.VideoInputDevices.Count > 1)
+@if (_videoForbidden)
 {
-    <button @onclick="ToggleDevice">toggle device</button>
-}
-
-@if (barcodereader == null || barcodereader.VideoInputDevices == null)
-{
-    <p>looking for devices</p>
+    <h4>no permission for videodevice</h4>
 }
 else
 {
-    <div id="sourceSelectPanel">
-        <label for="zxingSourceSelect">Change video source:</label>
-        <select id="zxingSourceSelect" value="@InputDevice" @onchange="ChangeVideoInputSource">
-            @foreach (var videoInputDevice in barcodereader.VideoInputDevices)
+    <h4>device @_inputDevice</h4>
+
+    @if (_devices != null)
+    {
+        @if (_devices.Count == 0)
+        {
+            <p>no devices available</p>
+        }
+        else
+        {
+            if (_devices.Count > 1)
             {
-                <option value="@videoInputDevice">@videoInputDevice</option>
+                <button @onclick="ToggleDevice">toggle device</button>
             }
-        </select>
-    </div>
+
+            <div id="sourceSelectPanel">
+                <label for="zxingSourceSelect">Change video source:</label>
+                <select id="zxingSourceSelect" value="@_inputDevice" @onchange="ChangeVideoInputSource">
+                    @foreach (var device in _devices)
+                    {
+                        <option value="@device.DeviceId">@device.Label</option>
+                    }
+                </select>
+            </div>
+        }
+    }
+
+    <p>Result : @_localBarcodeText</p>
+
+    <QRCodeWriter Text="@_localBarcodeText" Width="200" Heigth="200"></QRCodeWriter>
 }
-
-<p>Result : @LocalBarcodeText</p>
-
-<QRCodeWriter Text="@LocalBarcodeText" Width="200" Heigth="200"></QRCodeWriter>
 
 @code{
     private static string DefaultCodeFormat = "EAN";
@@ -75,34 +86,43 @@ else
         }
     }
 
-    private MultiFormatReader barcodereader;
-
-    private string CodeFormat = DefaultCodeFormat;
-
+    private MultiFormatReader _barcodereader;
+    private string _codeFormat = DefaultCodeFormat;
+    private List<MediaDeviceInfo> _devices = null;
     private BarcodeFormat[] FormatList = GetFormatList(DefaultCodeFormat);
+    private string _localBarcodeText;
+    private bool _videoForbidden;
+    private string _inputDevice;
 
-    private string LocalBarcodeText;
+    private void StartVideo(MultiFormatReaderStartEventArgs args)
+    {
+        _videoForbidden = !args.VideoPermission;
+        _devices = args.DeviceList;
 
-    private string InputDevice;
+        if (args.DeviceId != null)
+        {
+            _inputDevice = args.DeviceId;
+        }
+    }
 
     private void BarcodeRead(string code)
     {
-        LocalBarcodeText = code;
+        _localBarcodeText = code;
     }
 
     private void ChangeCodeFormat(ChangeEventArgs args)
     {
-        CodeFormat = args.Value.ToString();
-        FormatList = GetFormatList(CodeFormat);
+        _codeFormat = args.Value.ToString();
+        FormatList = GetFormatList(_codeFormat);
     }
 
     private void ChangeVideoInputSource(ChangeEventArgs args)
     {
-        InputDevice = args.Value.ToString();
+        _inputDevice = args.Value.ToString();
     }
 
     private async Task ToggleDevice(MouseEventArgs args)
     {
-        await barcodereader.ToggleDevice();
+        await _barcodereader.ToggleDevice();
     }
 }

@@ -4,7 +4,7 @@
 var codeReader;
 var codeFormat;
 
-export function initLibrary (format) {
+function initLibrary (format) {
 
     if (window.ZXing === undefined) {
         return;
@@ -92,58 +92,28 @@ export function initLibrary (format) {
     }
 }
 
-export async function listVideoInputNames () {
-    var deviceNames = [];
+export async function listVideoInputDevices () {
+    var devices = [];
 
     if (codeReader === undefined) {
-        return deviceNames;
+        return devices;
     }
 
-    var devices = await codeReader.listVideoInputDevices();
+    var mediaDevices = await codeReader.listVideoInputDevices();
 
-    devices.forEach(element => {
-        deviceNames.push(element.label);
+    mediaDevices.forEach(element => {
+        if (element.deviceId && element.label) {
+            devices.push({
+                deviceId: element.deviceId,
+                label: element.label
+            });
+        }
     });
-    deviceNames.sort();
 
-    return deviceNames;
+    return devices;
 }
 
-export async function getDeviceByName (deviceName) {
-    var deviceId;
-
-    if (codeReader === undefined) {
-        return deviceId;
-    }
-
-    var devices = await codeReader.listVideoInputDevices();
-
-    if (devices.length == 0) {
-        return deviceId;
-    }
-
-    if (deviceName) {
-        devices.forEach(element => {
-            if (element.label == deviceName) {
-                deviceId = element;
-            }
-        });
-    }
-
-    if (deviceId === undefined)
-    {
-        devices.sort(function(a, b) {
-            if (a.label < b.label) return -1;
-            if (b.label > a.label) return 1;
-            return 0;
-        });
-        deviceId = devices[0];
-    }
-
-    return deviceId;
-}
-
-export async function startDecoding (deviceName, format, videoElementId, targetInputId) {
+export async function startDecoding (deviceId, format, videoElementId, targetInputId) {
 
     initLibrary(format);
 
@@ -151,43 +121,64 @@ export async function startDecoding (deviceName, format, videoElementId, targetI
         return null;
     }
 
-    var device = await getDeviceByName(deviceName);
+    try {
 
-    codeReader.decodeFromVideoDevice(device.deviceId, videoElementId, (result, err) => {
-        if (result) {
-            console.log(result);
-            var el = document.getElementById(targetInputId);
-            if (el != null) {
-                el.value = result.text;
-                el.dispatchEvent(new Event('change'));
-            }
-            else {
-                console.error('element '+targetInputId+' not found');
-            }
+        let videoConstraints = {};
+
+        if (!deviceId) {
+            videoConstraints = { facingMode: 'environment' };
+        } else {
+            videoConstraints = { deviceId: deviceId.deviceId };
         }
-        if (err) {
-            // As long as this error belongs into one of the following categories
-            // the code reader is going to continue as excepted. Any other error
-            // will stop the decoding loop.
-            //
-            // Excepted Exceptions:
-            //
-            //  - NotFoundException
-            //  - ChecksumException
-            //  - FormatException
-            if (err instanceof ZXing.ChecksumException) {
-                console.log('A code was found, but it\'s read value was not valid.')
-            }
 
-            if (err instanceof ZXing.FormatException) {
-                console.log('A code was found, but it was in a invalid format.')
-            }
+        const constraints = { video: videoConstraints };
+
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+
+        const videoTracks = stream.getVideoTracks();
+        if (videoTracks.length > 0) {
+            deviceId = videoTracks[0].getSettings().deviceId;
         }
-    })
 
-    console.log('Started continous decode from camera with deviceid '+device.label);
+        codeReader.decodeFromStream(stream, videoElementId, (result, err) => {
+            if (result) {
+                console.log(result);
+                var el = document.getElementById(targetInputId);
+                if (el != null) {
+                    el.value = result.text;
+                    el.dispatchEvent(new Event('change'));
+                }
+                else {
+                    console.error('element '+targetInputId+' not found');
+                }
+            }
+            if (err) {
+                // As long as this error belongs into one of the following categories
+                // the code reader is going to continue as excepted. Any other error
+                // will stop the decoding loop.
+                //
+                // Excepted Exceptions:
+                //
+                //  - NotFoundException
+                //  - ChecksumException
+                //  - FormatException
+                if (err instanceof ZXing.ChecksumException) {
+                    console.log('A code was found, but it\'s read value was not valid.')
+                }
 
-    return device.label;
+                if (err instanceof ZXing.FormatException) {
+                    console.log('A code was found, but it was in a invalid format.')
+                }
+            }
+        })
+
+        console.log('Started continous decode from device '+deviceId);
+        return deviceId;
+    }
+    catch(err) {
+        console.log(err)
+        return null;
+    }
 }
 
 export function stopDecoding () {

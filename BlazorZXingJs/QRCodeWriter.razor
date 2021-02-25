@@ -5,7 +5,7 @@
 @code
 {
     [Parameter]
-    public string Text {get; set;}
+    public string? Text {get; set;}
 
     [Parameter]
     public int Width { get; set; } = 200;
@@ -14,16 +14,16 @@
     public int Heigth { get; set; } = 200;
 
     [Parameter(CaptureUnmatchedValues = true)]
-    public IReadOnlyDictionary<string, object> AdditionalAttributes { get; set; }
+    public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
 
     [Inject]
-    public IJSRuntime jsRuntime { get; set; }
+    public IJSRuntime jsRuntime { get; set; } = default!;
 
-    private IJSObjectReference _jsModule;
+    private IJSObjectReference? _jsModule;
 
     private ElementReference codeContainer;
 
-    private string _text;
+    private string? _text;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -32,7 +32,7 @@
             _jsModule = await jsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/BlazorZXingJs/QRCodeWriter.js");
             await _jsModule.InvokeVoidAsync("initLibrary");
         }
-        if (Text != _text)
+        if (Text != _text && _jsModule != null)
         {
             _text = Text;
             await _jsModule.InvokeVoidAsync("writeCode", codeContainer, Text, Width, Heigth);

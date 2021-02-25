@@ -9,11 +9,11 @@ namespace BlazorZXingJs
 {
     public partial class MultiFormatReader: IAsyncDisposable
     {
-        [Parameter]
-        public EventCallback<string> OnBarcodeRead { get; set; }
+        [Inject]
+        public IJSRuntime jsRuntime {get; set;} = default!;
 
         [Parameter]
-        public BarcodeFormat[] Format
+        public BarcodeFormat[]? Format
         {
             get => _format;
             set
@@ -27,14 +27,14 @@ namespace BlazorZXingJs
         }
 
         [Parameter]
-        public string InputDevice
+        public string? VideoDeviceId
         {
-            get => _inputDevice;
+            get => _videoDeviceId;
             set
             {
-                if (_inputDevice != value)
+                if (_videoDeviceId != value)
                 {
-                    _inputDevice = value;
+                    _videoDeviceId = value;
                     _shouldRestart = true;
                 }
             }
@@ -47,24 +47,19 @@ namespace BlazorZXingJs
         public int VideoHeigth { get; set; } = 200;
 
         [Parameter]
-        public EventCallback<string> InputDeviceChanged { get; set; }
+        public EventCallback<MultiFormatReaderStartEventArgs> OnStartVideo { get; set; }
+
+        [Parameter]
+        public EventCallback<string> OnBarcodeRead { get; set; }
 
         [Parameter(CaptureUnmatchedValues = true)]
-        public IReadOnlyDictionary<string, object> AdditionalAttributes { get; set; }
+        public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
 
-        [Inject]
-        public IJSRuntime jsRuntime { get; set; }
-
-        public bool Initialized => _initialized;
-        public List<string> VideoInputDevices => _videoInputDevices;
-        public bool CameraPermission => _cameraPermission;
-
-        private IJSObjectReference _jsModule;
-        private string _inputDevice = null;
-        private BarcodeFormat[] _format;
-        private List<string> _videoInputDevices = new List<string>();
+        private IJSObjectReference? _jsModule;
+        private string? _videoDeviceId;
+        private BarcodeFormat[]? _format;
+        private List<MediaDeviceInfo> _videoInputDevices = new List<MediaDeviceInfo>();
         private bool _initialized;
-        private bool _cameraPermission;
         private bool _starting = false;
         private bool _shouldRestart;
 
@@ -73,8 +68,6 @@ namespace BlazorZXingJs
             if (firstRender)
             {
                 _jsModule = await jsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/BlazorZXingJs/MultiFormatReader.js");
-                await _jsModule.InvokeVoidAsync("initLibrary", FormatToList(_format));
-                _videoInputDevices = await _jsModule.InvokeAsync<List<string>>("listVideoInputNames", "get");;
             }
             if (firstRender || _shouldRestart)
             {
@@ -92,13 +85,13 @@ namespace BlazorZXingJs
         {
             if (_videoInputDevices.Count > 1)
             {
-                var i = _videoInputDevices.IndexOf(_inputDevice);
+                var i = _videoInputDevices.FindIndex(item => item.DeviceId == _videoDeviceId);
                 i++;
                 if (i >= _videoInputDevices.Count)
                 {
                     i = 0;
                 }
-                _inputDevice = _videoInputDevices[i];
+                _videoDeviceId = _videoInputDevices[i].DeviceId;
                 await StartDecoding();
             }
         }
@@ -110,11 +103,15 @@ namespace BlazorZXingJs
                 _starting = true;
                 try
                 {
-                    var inputDevice = await _jsModule.InvokeAsync<string>("startDecoding", _inputDevice, FormatToList(_format), "zxingVideo", "zxingInput");
-                    if (inputDevice != _inputDevice)
+                    var videoDeviceId = await _jsModule.InvokeAsync<string>("startDecoding", _videoDeviceId, FormatToList(_format), "zxingVideo", "zxingInput");
+
+                    if (!_initialized && videoDeviceId != null)
                     {
-                        await InputDeviceChanged.InvokeAsync(inputDevice);
+                        _initialized = true;
+                        _videoInputDevices = await _jsModule.InvokeAsync<List<MediaDeviceInfo>>("listVideoInputDevices");
                     }
+
+                    await OnStartVideo.InvokeAsync(new MultiFormatReaderStartEventArgs(videoDeviceId, _videoInputDevices));
                 }
                 finally
                 {
@@ -131,7 +128,7 @@ namespace BlazorZXingJs
             }
         }
 
-        private static string FormatToList(BarcodeFormat[] format)
+        private static string? FormatToList(BarcodeFormat[]? format)
         {
             if (format != null)
             {
@@ -143,8 +140,9 @@ namespace BlazorZXingJs
             }
         }
 
-        private async Task OnCodeRead(ChangeEventArgs args) {
-            if (OnBarcodeRead.HasDelegate)
+        private async Task OnCodeRead(ChangeEventArgs args)
+        {
+            if (OnBarcodeRead.HasDelegate && args.Value != null)
             {
                 await OnBarcodeRead.InvokeAsync(args.Value.ToString());
             }
