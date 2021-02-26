@@ -20,40 +20,37 @@
     OnStartVideo="StartVideo"
     OnBarcodeRead="BarcodeRead"
     style="width: 100%; max-width: 320px; height: auto;"
-    class="blazorbarcodereader"
-/>
+    class="blazorbarcodereader">
 
-@if (_videoForbidden)
-{
-    <h4>no permission for videodevice</h4>
-}
-else
+    <VideoForbidden>
+        <h4>no permission for videodevice</h4>
+    </VideoForbidden>
+
+    <NoVideoDevices>
+        <p>no devices available</p>
+    </NoVideoDevices>
+</MultiFormatReader>
+
+@if (!_videoForbidden)
 {
     <h4>device @_inputDevice</h4>
 
     @if (_devices != null)
     {
-        @if (_devices.Count == 0)
+        if (_devices.Count > 1)
         {
-            <p>no devices available</p>
+            <button @onclick="ToggleDevice">toggle device</button>
         }
-        else
-        {
-            if (_devices.Count > 1)
-            {
-                <button @onclick="ToggleDevice">toggle device</button>
-            }
 
-            <div id="sourceSelectPanel">
-                <label for="zxingSourceSelect">Change video source:</label>
-                <select id="zxingSourceSelect" value="@_inputDevice" @onchange="ChangeVideoInputSource">
-                    @foreach (var device in _devices)
-                    {
-                        <option value="@device.DeviceId">@device.Label</option>
-                    }
-                </select>
-            </div>
-        }
+        <div id="sourceSelectPanel">
+            <label for="zxingSourceSelect">Change video source:</label>
+            <select id="zxingSourceSelect" value="@_inputDevice" @onchange="ChangeVideoInputSource">
+                @foreach (var device in _devices)
+                {
+                    <option value="@device.DeviceId">@device.Label</option>
+                }
+            </select>
+        </div>
     }
 
     <p>Result : @_localBarcodeText</p>
@@ -61,7 +58,8 @@ else
     <QRCodeWriter Text="@_localBarcodeText" Width="200" Heigth="200"></QRCodeWriter>
 }
 
-@code{
+@code
+{
     private static string DefaultCodeFormat = "EAN";
 
     private static BarcodeFormat[] GetFormatList(string format)
