@@ -60,7 +60,7 @@ For blazor server, in `Pages/_Host.cshtml`
 
 ## Examples
 
-### Read code with autodetect
+### Basic Read code with autodetect
 
 ```html
 @page "/"
@@ -70,8 +70,16 @@ For blazor server, in `Pages/_Host.cshtml`
 <MultiFormatReader
     VideoWidth="300"
     VideoHeigth="200"
-    OnBarcodeRead="BarcodeRead"
-/>
+    OnBarcodeRead="BarcodeRead">
+
+    <VideoForbidden>
+        <h4>no permission for videodevice</h4>
+    </VideoForbidden>
+
+    <NoVideoDevices>
+        <h4>no devices available</h4>
+    </NoVideoDevices>
+</MultiFormatReader>
 
 <h4>@LocalBarcodeText</h4>
 
