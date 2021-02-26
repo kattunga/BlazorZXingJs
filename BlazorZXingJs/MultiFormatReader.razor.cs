@@ -55,12 +55,19 @@ namespace BlazorZXingJs
         [Parameter(CaptureUnmatchedValues = true)]
         public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
 
+        [Parameter]
+        public RenderFragment? VideoForbidden { get; set; }
+
+        [Parameter]
+        public RenderFragment? NoVideoDevices { get; set; }
+
         private IJSObjectReference? _jsModule;
         private string? _videoDeviceId;
         private BarcodeFormat[]? _format;
         private List<MediaDeviceInfo> _videoInputDevices = new List<MediaDeviceInfo>();
         private bool _initialized;
-        private bool _starting = false;
+        private bool _videoForbidden;
+        private bool _starting;
         private bool _shouldRestart;
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -104,6 +111,8 @@ namespace BlazorZXingJs
                 try
                 {
                     var videoDeviceId = await _jsModule.InvokeAsync<string>("startDecoding", _videoDeviceId, FormatToList(_format), "zxingVideo", "zxingInput");
+
+                    _videoForbidden = videoDeviceId == null;
 
                     if (!_initialized && videoDeviceId != null)
                     {

@@ -1,6 +1,17 @@
 ﻿@using Microsoft.AspNetCore.Components.Web;
 
 <div>
-    <video id="zxingVideo" width="@VideoWidth" height="@VideoHeigth" @attributes="AdditionalAttributes"></video>
-    <input id="zxingInput" type="hidden" @onchange="OnCodeRead" />
+    @if (_videoForbidden)
+    {
+        @VideoForbidden
+    }
+    else if (_initialized &&  _videoInputDevices.Count == 0)
+    {
+        @NoVideoDevices
+    }
+    else
+    {
+        <video id="zxingVideo" width="@VideoWidth" height="@VideoHeigth" @attributes="AdditionalAttributes"></video>
+        <input id="zxingInput" type="hidden" @onchange="OnCodeRead" />
+    }
 </div>
