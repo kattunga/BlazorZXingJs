@@ -120,7 +120,7 @@ namespace BlazorZXingJs
                         _videoInputDevices = await _jsModule.InvokeAsync<List<MediaDeviceInfo>>("listVideoInputDevices");
                     }
 
-                    await OnStartVideo.InvokeAsync(new MultiFormatReaderStartEventArgs(videoDeviceId, _videoInputDevices));
+                    await OnStartVideo.InvokeAsync(new MultiFormatReaderStartEventArgs(videoDeviceId, _videoInputDevices, !_videoForbidden));
 
                     StateHasChanged();
                 }
