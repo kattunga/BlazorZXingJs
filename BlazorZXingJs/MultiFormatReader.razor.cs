@@ -121,6 +121,8 @@ namespace BlazorZXingJs
                     }
 
                     await OnStartVideo.InvokeAsync(new MultiFormatReaderStartEventArgs(videoDeviceId, _videoInputDevices));
+
+                    StateHasChanged();
                 }
                 finally
                 {
