@@ -114,7 +114,7 @@ namespace BlazorZXingJs
 
                     _videoForbidden = videoDeviceId == null;
 
-                    if (_videoForbidden)
+                    if (!_videoForbidden)
                     {
                         _videoDeviceId = videoDeviceId;
 
