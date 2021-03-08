@@ -173,11 +173,25 @@ export async function startDecoding (deviceId, format, videoElementId, targetInp
         })
 
         console.log('Started continous decode from device '+deviceId);
+
+        var resp = {
+            deviceId: deviceId,
+            errorName: null,
+            errorMessage: null
+        }
+
         return deviceId;
     }
     catch(err) {
         console.log(err)
-        return null;
+
+        var resp = {
+            deviceId: null,
+            errorName: err.name,
+            errorMessage: err.message
+        }
+
+        return resp;
     }
 }
 

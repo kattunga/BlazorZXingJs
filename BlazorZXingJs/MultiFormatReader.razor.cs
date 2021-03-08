@@ -66,9 +66,16 @@ namespace BlazorZXingJs
         private BarcodeFormat[]? _format;
         private List<MediaDeviceInfo> _videoInputDevices = new List<MediaDeviceInfo>();
         private bool _initialized;
-        private bool _videoForbidden;
+        private string? _domException;
         private bool _starting;
         private bool _shouldRestart;
+
+        private class StartResponse
+        {
+            public string? DeviceId { get; set; }
+            public string? ErrorName { get; set; }
+            public string? ErrorMessage { get; set; }
+        }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
@@ -110,13 +117,13 @@ namespace BlazorZXingJs
                 _starting = true;
                 try
                 {
-                    var videoDeviceId = await _jsModule.InvokeAsync<string>("startDecoding", _videoDeviceId, FormatToList(_format), "zxingVideo", "zxingInput");
+                    var resp = await _jsModule.InvokeAsync<StartResponse>("startDecoding", _videoDeviceId, FormatToList(_format), "zxingVideo", "zxingInput");
 
-                    _videoForbidden = videoDeviceId == null;
+                    _domException = resp.ErrorName;
 
-                    if (!_videoForbidden)
+                    if (_domException != null)
                     {
-                        _videoDeviceId = videoDeviceId;
+                        _videoDeviceId = resp.DeviceId;
 
                         if (!_initialized)
                         {
@@ -125,7 +132,7 @@ namespace BlazorZXingJs
                         }
                     }
 
-                    await OnStartVideo.InvokeAsync(new MultiFormatReaderStartEventArgs(_videoDeviceId, _videoInputDevices, !_videoForbidden));
+                    await OnStartVideo.InvokeAsync(new MultiFormatReaderStartEventArgs(_videoDeviceId, _videoInputDevices, resp.ErrorName, resp.ErrorMessage));
 
                     StateHasChanged();
                 }

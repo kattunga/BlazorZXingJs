@@ -31,7 +31,11 @@
     </NoVideoDevices>
 </MultiFormatReader>
 
-@if (!_videoForbidden)
+@if (_domException != null)
+{
+    <h4>DOMException @_domException</h4>
+}
+else
 {
     <h4>device @_inputDevice</h4>
 
@@ -89,12 +93,12 @@
     private List<MediaDeviceInfo> _devices = null;
     private BarcodeFormat[] FormatList = GetFormatList(DefaultCodeFormat);
     private string _localBarcodeText;
-    private bool _videoForbidden;
+    private string _domException;
     private string _inputDevice;
 
     private void StartVideo(MultiFormatReaderStartEventArgs args)
     {
-        _videoForbidden = !args.VideoPermission;
+        _domException = args.DOMExceptionName;
         _devices = args.DeviceList;
 
         if (args.DeviceId != null)

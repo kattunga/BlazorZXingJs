@@ -1,15 +1,15 @@
 ﻿@using Microsoft.AspNetCore.Components.Web;
 
 <div>
-    @if (_videoForbidden)
+    @if (_domException == DOMException.NotAllowedError)
     {
         @VideoForbidden
     }
-    else if (_initialized &&  _videoInputDevices.Count == 0)
+    else if (_domException == DOMException.NotFoundError)
     {
         @NoVideoDevices
     }
-    else
+    else if (_domException == null)
     {
         <video id="zxingVideo" width="@VideoWidth" height="@VideoHeigth" @attributes="AdditionalAttributes"></video>
         <input id="zxingInput" type="hidden" @onchange="OnCodeRead" />
