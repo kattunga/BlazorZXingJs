@@ -128,7 +128,7 @@ export async function startDecoding (deviceId, format, videoElementId, targetInp
         if (!deviceId) {
             videoConstraints = { facingMode: 'environment' };
         } else {
-            videoConstraints = { deviceId: deviceId.deviceId };
+            videoConstraints = { deviceId: deviceId };
         }
 
         const constraints = { video: videoConstraints };
