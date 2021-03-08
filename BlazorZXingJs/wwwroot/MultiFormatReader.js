@@ -92,7 +92,7 @@ function initLibrary (format) {
     }
 }
 
-export async function listVideoInputDevices () {
+async function listVideoInputDevices () {
     var devices = [];
 
     if (codeReader === undefined) {
@@ -174,19 +174,22 @@ export async function startDecoding (deviceId, format, videoElementId, targetInp
 
         console.log('Started continous decode from device '+deviceId);
 
+        var devices = await listVideoInputDevices();
         var resp = {
             deviceId: deviceId,
+            devices: devices,
             errorName: null,
             errorMessage: null
         }
 
-        return deviceId;
+        return resp;
     }
     catch(err) {
         console.log(err)
 
         var resp = {
             deviceId: null,
+            devices: [],
             errorName: err.name,
             errorMessage: err.message
         }

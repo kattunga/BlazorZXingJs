@@ -61,11 +61,13 @@ namespace BlazorZXingJs
         [Parameter]
         public RenderFragment? NoVideoDevices { get; set; }
 
+        [Parameter]
+        public RenderFragment<string>? VideoError { get; set; }
+
         private IJSObjectReference? _jsModule;
         private string? _videoDeviceId;
         private BarcodeFormat[]? _format;
         private List<MediaDeviceInfo> _videoInputDevices = new List<MediaDeviceInfo>();
-        private bool _initialized;
         private string? _domException;
         private bool _starting;
         private bool _shouldRestart;
@@ -73,6 +75,7 @@ namespace BlazorZXingJs
         private class StartResponse
         {
             public string? DeviceId { get; set; }
+            public MediaDeviceInfo[]? Devices { get; set; }
             public string? ErrorName { get; set; }
             public string? ErrorMessage { get; set; }
         }
@@ -119,18 +122,17 @@ namespace BlazorZXingJs
                 {
                     var resp = await _jsModule.InvokeAsync<StartResponse>("startDecoding", _videoDeviceId, FormatToList(_format), "zxingVideo", "zxingInput");
 
-                    _domException = resp.ErrorName;
-
-                    if (_domException != null)
+                    if (resp.DeviceId != null)
                     {
                         _videoDeviceId = resp.DeviceId;
-
-                        if (!_initialized)
-                        {
-                            _initialized = true;
-                            _videoInputDevices = await _jsModule.InvokeAsync<List<MediaDeviceInfo>>("listVideoInputDevices");
-                        }
                     }
+
+                    if (resp.Devices != null)
+                    {
+                        _videoInputDevices = new List<MediaDeviceInfo>(resp.Devices);
+                    }
+
+                    _domException = resp.ErrorName;
 
                     await OnStartVideo.InvokeAsync(new MultiFormatReaderStartEventArgs(_videoDeviceId, _videoInputDevices, resp.ErrorName, resp.ErrorMessage));
 

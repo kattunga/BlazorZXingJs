@@ -29,13 +29,13 @@
     <NoVideoDevices>
         <h4>no devices available</h4>
     </NoVideoDevices>
+
+    <VideoError>
+        <h4>DOM Exception: @context</h4>
+    </VideoError>
 </MultiFormatReader>
 
-@if (_domException != null)
-{
-    <h4>DOMException @_domException</h4>
-}
-else
+@if (_domException == null)
 {
     <h4>device @_inputDevice</h4>
 
