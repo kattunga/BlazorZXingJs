@@ -80,18 +80,33 @@ namespace BlazorZXingJs
             public string? ErrorMessage { get; set; }
         }
 
-        protected override async Task OnAfterRenderAsync(bool firstRender)
+        protected override async Task OnParametersSetAsync()
         {
-            if (firstRender)
+            if (_jsModule == null)
             {
                 _jsModule = await jsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/BlazorZXingJs/MultiFormatReader.js");
+                _shouldRestart = true;
             }
-            if (firstRender || _shouldRestart)
-            {
-                _shouldRestart = false;
-                await StartDecoding();
-            }
+
+             if (_shouldRestart)
+             {
+                 _shouldRestart = false;
+                 await StartDecoding();
+             }
         }
+
+        // protected override async Task OnAfterRenderAsync(bool firstRender)
+        // {
+        //     if (firstRender)
+        //     {
+        //         _jsModule = await jsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/BlazorZXingJs/MultiFormatReader.js");
+        //     }
+        //     if (firstRender || _shouldRestart)
+        //     {
+        //         _shouldRestart = false;
+        //         await StartDecoding();
+        //     }
+        // }
 
         public async ValueTask DisposeAsync()
         {
@@ -136,7 +151,7 @@ namespace BlazorZXingJs
 
                     await OnStartVideo.InvokeAsync(new MultiFormatReaderStartEventArgs(_videoDeviceId, _videoInputDevices, resp.ErrorName, resp.ErrorMessage));
 
-                    StateHasChanged();
+                    //StateHasChanged();
                 }
                 finally
                 {
