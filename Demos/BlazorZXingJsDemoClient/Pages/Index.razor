@@ -129,13 +129,14 @@
 
     private async Task ToggleDevice(MouseEventArgs args)
     {
-        await _barcodereader.ToggleDevice();
+        if (_barcodereader != null)
+        {
+            await _barcodereader.ToggleDevice();
+        }
     }
 
     private void ToggleTorch(MouseEventArgs args)
     {
-        _videoProperties = new MediaTrackConstraints() {
-            Torch = !_videoProperties.Torch
-        };
+        _videoProperties.Torch = !_videoProperties.Torch;
     }
 }

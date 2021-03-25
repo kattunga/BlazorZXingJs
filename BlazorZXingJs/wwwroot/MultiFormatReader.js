@@ -3,6 +3,7 @@
 
 var codeReader;
 var codeFormat;
+var videoStream;
 
 function initLibrary (format) {
 
@@ -10,9 +11,7 @@ function initLibrary (format) {
         return;
     }
 
-    if (codeReader !== undefined) {
-        codeReader.reset();
-    }
+    stopDecoding();
 
     if (codeReader === undefined || format != codeFormat) {
 
@@ -126,6 +125,24 @@ async function setMediaTrackConstraints(track, mediaTrackConstraints) {
     }
 }
 
+export async function setVideoProperties(mediaTrackConstraints) {
+    var deviceId = undefined;
+
+    if (videoStream) {
+        const videoTracks = videoStream.getVideoTracks();
+        if (videoTracks.length > 0) {
+            const track = videoTracks[0];
+            deviceId = track.getSettings().deviceId;
+            if (mediaTrackConstraints) {
+                await setMediaTrackConstraints(track, mediaTrackConstraints);
+                console.log('Set MediaTrackConstraints ', mediaTrackConstraints);
+            }
+        }
+    }
+
+    return deviceId;
+}
+
 export async function startDecoding (deviceId, format, videoElementId, targetInputId, mediaTrackConstraints) {
 
     initLibrary(format);
@@ -146,18 +163,11 @@ export async function startDecoding (deviceId, format, videoElementId, targetInp
 
         const constraints = { video: videoConstraints };
 
-        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        videoStream = await navigator.mediaDevices.getUserMedia(constraints);
 
-        const videoTracks = stream.getVideoTracks();
-        if (videoTracks.length > 0) {
-            const track = videoTracks[0];
-            deviceId = track.getSettings().deviceId;
-            if (mediaTrackConstraints) {
-                await setMediaTrackConstraints(track, mediaTrackConstraints);
-            }
-        }
+        deviceId = await setVideoProperties(mediaTrackConstraints);
 
-        codeReader.decodeFromStream(stream, videoElementId, (result, err) => {
+        codeReader.decodeFromStream(videoStream, videoElementId, (result, err) => {
             if (result) {
                 console.log(result);
                 var el = document.getElementById(targetInputId);
@@ -216,6 +226,8 @@ export async function startDecoding (deviceId, format, videoElementId, targetInp
 }
 
 export function stopDecoding () {
+    videoStream = undefined;
+
     if (codeReader !== undefined) {
         codeReader.reset();
         console.log('Reset.');

@@ -21,7 +21,7 @@ namespace BlazorZXingJs
                 if (FormatToList(_format) != FormatToList(value))
                 {
                     _format = value;
-                    _shouldRestart = true;
+                    _restart = true;
                 }
             }
         }
@@ -35,7 +35,7 @@ namespace BlazorZXingJs
                 if (_videoDeviceId != value)
                 {
                     _videoDeviceId = value;
-                    _shouldRestart = true;
+                    _restart = true;
                 }
             }
         }
@@ -46,10 +46,10 @@ namespace BlazorZXingJs
             get => _videoProperties;
             set
             {
-                if (_videoProperties != value)
+                if (!Equals(_videoProperties, value))
                 {
                     _videoProperties = value;
-                    _shouldRestart = true;
+                    _setProperties = true;
                 }
             }
         }
@@ -85,7 +85,8 @@ namespace BlazorZXingJs
         private List<MediaDeviceInfo> _videoInputDevices = new List<MediaDeviceInfo>();
         private string? _domException;
         private bool _starting;
-        private bool _shouldRestart;
+        private bool _restart;
+        private bool _setProperties;
 
         private class StartResponse
         {
@@ -100,13 +101,19 @@ namespace BlazorZXingJs
             if (_jsModule == null)
             {
                 _jsModule = await jsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/BlazorZXingJs/MultiFormatReader.js");
-                _shouldRestart = true;
+                _restart = true;
             }
 
-            if (_shouldRestart)
+            if (_restart)
             {
-                _shouldRestart = false;
+                _restart = false;
+                _setProperties = false;
                 await StartDecoding();
+            }
+            if (_setProperties)
+            {
+                _setProperties = false;
+                await _jsModule.InvokeAsync<string>("setVideoProperties", _videoProperties);
             }
         }
 
@@ -129,6 +136,18 @@ namespace BlazorZXingJs
                 await StartDecoding();
             }
         }
+
+        // public async Task SetVideoProperties(MediaTrackConstraints? videoProperties)
+        // {
+        //     if (_videoProperties != videoProperties)
+        //     {
+        //         if (_jsModule != null && !_starting)
+        //         {
+        //             await _jsModule.InvokeAsync<string>("setVideoProperties", videoProperties);
+        //         }
+        //         _videoProperties = videoProperties;
+        //     }
+        // }
 
         public async Task StartDecoding()
         {

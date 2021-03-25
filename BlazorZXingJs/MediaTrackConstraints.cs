@@ -1,7 +1,7 @@
 namespace BlazorZXingJs
 {
-    public record MediaTrackConstraints
+    public struct MediaTrackConstraints
     {
-        public bool Torch { get; init; }
+        public bool Torch { get; set; }
     }
 }
