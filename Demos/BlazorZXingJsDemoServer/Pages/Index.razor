@@ -17,6 +17,7 @@
     VideoDeviceId="@_inputDevice"
     VideoHeigth="480"
     VideoWidth="640"
+    VideoProperties="@_videoProperties"
     OnStartVideo="StartVideo"
     OnBarcodeRead="BarcodeRead"
     style="width: 100%; max-width: 320px; height: auto;"
@@ -55,6 +56,8 @@
                 }
             </select>
         </div>
+
+        <button @onclick="ToggleTorch">Torch on/off</button>
     }
 
     <p>Result : @_localBarcodeText</p>
@@ -92,6 +95,7 @@
     private string _codeFormat = DefaultCodeFormat;
     private List<MediaDeviceInfo> _devices = null;
     private BarcodeFormat[] FormatList = GetFormatList(DefaultCodeFormat);
+    private MediaTrackConstraints _videoProperties = new MediaTrackConstraints();
     private string _localBarcodeText;
     private string _domException;
     private string _inputDevice;
@@ -126,5 +130,12 @@
     private async Task ToggleDevice(MouseEventArgs args)
     {
         await _barcodereader.ToggleDevice();
+    }
+
+    private void ToggleTorch(MouseEventArgs args)
+    {
+        _videoProperties = new MediaTrackConstraints() {
+            Torch = !_videoProperties.Torch
+        };
     }
 }
