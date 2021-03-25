@@ -7,10 +7,10 @@ using Microsoft.JSInterop;
 
 namespace BlazorZXingJs
 {
-    public partial class MultiFormatReader: IAsyncDisposable
+    public partial class MultiFormatReader : IAsyncDisposable
     {
         [Inject]
-        public IJSRuntime jsRuntime {get; set;} = default!;
+        public IJSRuntime jsRuntime { get; set; } = default!;
 
         [Parameter]
         public BarcodeFormat[]? Format
@@ -35,6 +35,20 @@ namespace BlazorZXingJs
                 if (_videoDeviceId != value)
                 {
                     _videoDeviceId = value;
+                    _shouldRestart = true;
+                }
+            }
+        }
+
+        [Parameter]
+        public MediaTrackConstraints? VideoProperties
+        {
+            get => _videoProperties;
+            set
+            {
+                if (_videoProperties != value)
+                {
+                    _videoProperties = value;
                     _shouldRestart = true;
                 }
             }
@@ -66,6 +80,7 @@ namespace BlazorZXingJs
 
         private IJSObjectReference? _jsModule;
         private string? _videoDeviceId;
+        private MediaTrackConstraints? _videoProperties;
         private BarcodeFormat[]? _format;
         private List<MediaDeviceInfo> _videoInputDevices = new List<MediaDeviceInfo>();
         private string? _domException;
@@ -88,25 +103,12 @@ namespace BlazorZXingJs
                 _shouldRestart = true;
             }
 
-             if (_shouldRestart)
-             {
-                 _shouldRestart = false;
-                 await StartDecoding();
-             }
+            if (_shouldRestart)
+            {
+                _shouldRestart = false;
+                await StartDecoding();
+            }
         }
-
-        // protected override async Task OnAfterRenderAsync(bool firstRender)
-        // {
-        //     if (firstRender)
-        //     {
-        //         _jsModule = await jsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/BlazorZXingJs/MultiFormatReader.js");
-        //     }
-        //     if (firstRender || _shouldRestart)
-        //     {
-        //         _shouldRestart = false;
-        //         await StartDecoding();
-        //     }
-        // }
 
         public async ValueTask DisposeAsync()
         {
@@ -135,7 +137,7 @@ namespace BlazorZXingJs
                 _starting = true;
                 try
                 {
-                    var resp = await _jsModule.InvokeAsync<StartResponse>("startDecoding", _videoDeviceId, FormatToList(_format), "zxingVideo", "zxingInput");
+                    var resp = await _jsModule.InvokeAsync<StartResponse>("startDecoding", _videoDeviceId, FormatToList(_format), "zxingVideo", "zxingInput", _videoProperties);
 
                     if (resp.DeviceId != null)
                     {
@@ -150,8 +152,6 @@ namespace BlazorZXingJs
                     _domException = resp.ErrorName;
 
                     await OnStartVideo.InvokeAsync(new MultiFormatReaderStartEventArgs(_videoDeviceId, _videoInputDevices, resp.ErrorName, resp.ErrorMessage));
-
-                    //StateHasChanged();
                 }
                 finally
                 {

@@ -113,21 +113,20 @@ async function listVideoInputDevices () {
     return devices;
 }
 
-async function setTorch(track, torch) {
+async function setMediaTrackConstraints(track, mediaTrackConstraints) {
+    if (mediaTrackConstraints.torch) {
+        const imageCapture = new ImageCapture(track);
+        const capabilities = await imageCapture.getPhotoCapabilities();
 
-    let compatible = false;
-
-    const imageCapture = new ImageCapture(track);
-    const capabilities = await imageCapture.getPhotoCapabilities();
-
-    if (!!capabilities['torch'] || ('fillLightMode' in capabilities && capabilities.fillLightMode.length !== 0)) {
-        track.applyConstraints({
-            advanced: [{torch: torch}]
-        });
+        if (!!capabilities['torch'] || ('fillLightMode' in capabilities && capabilities.fillLightMode.length !== 0)) {
+            track.applyConstraints({
+                advanced: [{torch: true}]
+            });
+        }
     }
 }
 
-export async function startDecoding (deviceId, format, videoElementId, targetInputId) {
+export async function startDecoding (deviceId, format, videoElementId, targetInputId, mediaTrackConstraints) {
 
     initLibrary(format);
 
@@ -153,7 +152,9 @@ export async function startDecoding (deviceId, format, videoElementId, targetInp
         if (videoTracks.length > 0) {
             const track = videoTracks[0];
             deviceId = track.getSettings().deviceId;
-            await setTorch(track, true);
+            if (mediaTrackConstraints) {
+                await setMediaTrackConstraints(track, mediaTrackConstraints);
+            }
         }
 
         codeReader.decodeFromStream(stream, videoElementId, (result, err) => {
