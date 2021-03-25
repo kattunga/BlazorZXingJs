@@ -113,6 +113,20 @@ async function listVideoInputDevices () {
     return devices;
 }
 
+async function setTorch(track, torch) {
+
+    let compatible = false;
+
+    const imageCapture = new ImageCapture(track);
+    const capabilities = await imageCapture.getPhotoCapabilities();
+
+    if (!!capabilities['torch'] || ('fillLightMode' in capabilities && capabilities.fillLightMode.length !== 0)) {
+        track.applyConstraints({
+            advanced: [{torch: torch}]
+        });
+    }
+}
+
 export async function startDecoding (deviceId, format, videoElementId, targetInputId) {
 
     initLibrary(format);
@@ -137,7 +151,9 @@ export async function startDecoding (deviceId, format, videoElementId, targetInp
 
         const videoTracks = stream.getVideoTracks();
         if (videoTracks.length > 0) {
-            deviceId = videoTracks[0].getSettings().deviceId;
+            const track = videoTracks[0];
+            deviceId = track.getSettings().deviceId;
+            await setTorch(track, true);
         }
 
         codeReader.decodeFromStream(stream, videoElementId, (result, err) => {
