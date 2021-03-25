@@ -57,7 +57,8 @@
             </select>
         </div>
 
-        <button @onclick="ToggleTorch">Torch on/off</button>
+        <label for="zxingTorch">Torch</label>
+        <button id="zxingTorch" @onclick="ToggleTorch">Torch on/off</button>
     }
 
     <p>Result : @_localBarcodeText</p>
