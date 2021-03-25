@@ -113,15 +113,13 @@ async function listVideoInputDevices () {
 }
 
 async function setMediaTrackConstraints(track, mediaTrackConstraints) {
-    if (mediaTrackConstraints.torch) {
-        const imageCapture = new ImageCapture(track);
-        const capabilities = await imageCapture.getPhotoCapabilities();
+    const imageCapture = new ImageCapture(track);
+    const capabilities = await imageCapture.getPhotoCapabilities();
 
-        if (!!capabilities['torch'] || ('fillLightMode' in capabilities && capabilities.fillLightMode.length !== 0)) {
-            track.applyConstraints({
-                advanced: [{torch: true}]
-            });
-        }
+    if (!!capabilities['torch'] || ('fillLightMode' in capabilities && capabilities.fillLightMode.length !== 0)) {
+        track.applyConstraints({
+            advanced: [{torch: mediaTrackConstraints.torch}]
+        });
     }
 }
 
