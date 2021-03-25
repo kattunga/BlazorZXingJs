@@ -93,6 +93,55 @@ For blazor server, in `Pages/_Host.cshtml`
 }
 ```
 
+### Advanced Read code
+
+```html
+@page "/"
+
+@using BlazorZXingJs
+
+<MultiFormatReader
+    Format="@_formatList"
+    VideoWidth="300"
+    VideoHeigth="200"
+    VideoProperties="@_videoProperties"
+    OnStartVideo="StartVideo"
+    OnBarcodeRead="BarcodeRead">
+</MultiFormatReader>
+
+<h4>@LocalBarcodeText</h4>
+
+@code {
+    private string LocalBarcodeText;
+
+    private BarcodeFormat[] _formatList  = new BarcodeFormat[] { BarcodeFormat.EAN_8, BarcodeFormat.EAN_13 };
+
+    private MediaTrackConstraints _videoProperties = new MediaTrackConstraints() { Torch = true} ;
+
+    private string _domException;
+
+    private List<MediaDeviceInfo> _devices;
+        
+    private string _inputDevice;
+
+    private void StartVideo(MultiFormatReaderStartEventArgs args)
+    {
+        _domException = args.DOMExceptionName;
+        _devices = args.DeviceList;
+
+        if (args.DeviceId != null)
+        {
+            _inputDevice = args.DeviceId;
+        }
+    }
+
+    private void BarcodeRead(string code)
+    {
+        LocalBarcodeText = code;
+    } 
+}
+```
+
 ### Write QRCode
 
 ```html
