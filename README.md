@@ -69,7 +69,7 @@ For blazor server, in `Pages/_Host.cshtml`
 
 <MultiFormatReader
     VideoWidth="300"
-    VideoHeigth="200"
+    VideoHeight="200"
     OnBarcodeRead="BarcodeRead">
 
     <VideoForbidden>

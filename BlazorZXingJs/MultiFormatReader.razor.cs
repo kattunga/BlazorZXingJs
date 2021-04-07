@@ -58,7 +58,7 @@ namespace BlazorZXingJs
         public int VideoWidth { get; set; } = 300;
 
         [Parameter]
-        public int VideoHeigth { get; set; } = 200;
+        public int VideoHeight { get; set; } = 200;
 
         [Parameter]
         public EventCallback<MultiFormatReaderStartEventArgs> OnStartVideo { get; set; }
