@@ -5,10 +5,11 @@ namespace BlazorZXingJs
 {
     public class MultiFormatReaderStartEventArgs : EventArgs
     {
-        public MultiFormatReaderStartEventArgs(string? deviceId, MediaTrackCapabilities? deviceCapabilities, List<MediaDeviceInfo> deviceList, string? domExceptionName, string? domExceptionMessage)
+        public MultiFormatReaderStartEventArgs(string? deviceId, MediaTrackCapabilities? deviceCapabilities, string? deviceCapabilitiesJson, List<MediaDeviceInfo> deviceList, string? domExceptionName, string? domExceptionMessage)
         {
             DeviceId = deviceId;
             DeviceCapabilities = deviceCapabilities;
+            DeviceCapabilitiesJson = deviceCapabilitiesJson;
             DeviceList = deviceList;
             DOMExceptionName = domExceptionName;
             DOMExceptionMessage = domExceptionMessage;
@@ -16,6 +17,7 @@ namespace BlazorZXingJs
 
         public string? DeviceId { get; init; }
         public MediaTrackCapabilities? DeviceCapabilities { get; init; }
+        public string? DeviceCapabilitiesJson { get; init; }
         public List<MediaDeviceInfo> DeviceList { get; init; }
         public string? DOMExceptionName {get; init;}
         public string? DOMExceptionMessage {get; init;}

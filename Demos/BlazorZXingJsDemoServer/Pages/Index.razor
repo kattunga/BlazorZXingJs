@@ -11,6 +11,8 @@
     </select>
 </div>
 
+<p class="mt-1">Result : @_localBarcodeText</p>
+
 <MultiFormatReader
     @ref="_barcodereader"
     Format="@FormatList"
@@ -38,7 +40,7 @@
 
 @if (_domException == null)
 {
-    <h4>device @_inputDevice</h4>
+    <h4 class="mt-1">device @_inputDevice</h4>
 
     @if (_devices != null)
     {
@@ -47,8 +49,7 @@
             <button @onclick="ToggleDevice">toggle device</button>
         }
 
-        <div id="sourceSelectPanel">
-            <label for="zxingSourceSelect">Change video source:</label>
+        <div class="mt-1" id="sourceSelectPanel">
             <select id="zxingSourceSelect" value="@_inputDevice" @onchange="ChangeVideoInputSource">
                 @foreach (var device in _devices)
                 {
@@ -57,13 +58,13 @@
             </select>
         </div>
 
-        <label for="zxingTorch">Torch</label>
         <button id="zxingTorch" @onclick="ToggleTorch">Torch on/off</button>
     }
 
-    <p>Result : @_localBarcodeText</p>
-
-    <QRCodeWriter Text="@_localBarcodeText" Width="200" Heigth="200"></QRCodeWriter>
+    <p class="mt-3">Device capabilities</p>
+    <code class="mt-1" style="white-space: pre-wrap;">
+        @_deviceCapabilities
+    </code>
 }
 
 @code
@@ -100,6 +101,7 @@
     private string _localBarcodeText;
     private string _domException;
     private string _inputDevice;
+    private string _deviceCapabilities;
 
     private void StartVideo(MultiFormatReaderStartEventArgs args)
     {
@@ -109,6 +111,7 @@
         if (args.DeviceId != null)
         {
             _inputDevice = args.DeviceId;
+            _deviceCapabilities = args.DeviceCapabilitiesJson;
         }
     }
 

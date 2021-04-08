@@ -92,6 +92,7 @@ namespace BlazorZXingJs
         {
             public string? DeviceId { get; set; }
             public MediaTrackCapabilities? DeviceCapabilities { get; set; }
+            public string? DeviceCapabilitiesJson { get; set; }
             public MediaDeviceInfo[]? Devices { get; set; }
             public string? ErrorName { get; set; }
             public string? ErrorMessage { get; set; }
@@ -166,7 +167,7 @@ namespace BlazorZXingJs
                         _domException = null;
                     }
 
-                    await OnStartVideo.InvokeAsync(new MultiFormatReaderStartEventArgs(_videoDeviceId, resp.DeviceCapabilities, _videoInputDevices, resp.ErrorName, resp.ErrorMessage));
+                    await OnStartVideo.InvokeAsync(new MultiFormatReaderStartEventArgs(_videoDeviceId, resp.DeviceCapabilities, resp.DeviceCapabilitiesJson, _videoInputDevices, resp.ErrorName, resp.ErrorMessage));
                 }
                 finally
                 {

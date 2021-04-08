@@ -210,6 +210,7 @@ export async function startDecoding (deviceId, format, videoElementId, targetInp
         var resp = {
             deviceId: deviceId,
             deviceCapabilities: capabilities,
+            deviceCapabilitiesJson: JSON.stringify(capabilities, null, 2),
             devices: devices,
             errorName: null,
             errorMessage: null
@@ -223,6 +224,7 @@ export async function startDecoding (deviceId, format, videoElementId, targetInp
         var resp = {
             deviceId: null,
             deviceCapabilities: null,
+            deviceCapabilitiesJson: null,
             devices: [],
             errorName: err.name,
             errorMessage: err.message
