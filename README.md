@@ -46,10 +46,12 @@ For blazor wasm, in `wwwroot\index.html`
 </body>
 ```
 
-For blazor server, in `Pages/_Host.cshtml`
+For blazor server (, in `Pages/_Host.cshtml`
 ```html
 ...
 <body>
+    <!-- ServerPrerrendered mode is not supported, so change it to render-mode=Server-->
+    <component type="typeof(App)" render-mode="Server" />
     ...
     <script src="_framework/blazor.server.js"></script>
 
