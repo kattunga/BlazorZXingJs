@@ -113,8 +113,8 @@ async function listVideoInputDevices () {
 }
 
 async function setMediaTrackConstraints(track, mediaTrackConstraints) {
-    const imageCapture = new ImageCapture(track);
-    const capabilities = await imageCapture.getPhotoCapabilities();
+    const capabilities = await track.getCapabilities();
+    console.log('Get GetCapabilities MediaTrackConstraints ', capabilities);
 
     if (!!capabilities['torch'] || ('fillLightMode' in capabilities && capabilities.fillLightMode.length !== 0)) {
         track.applyConstraints({
