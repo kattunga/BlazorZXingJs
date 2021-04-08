@@ -134,8 +134,6 @@ export async function setVideoProperties(mediaTrackConstraints) {
             if (typeof track.getCapabilities == 'function') {
                 capabilities = track.getCapabilities();
 
-                console.log('Get track Capabilities ', capabilities);
-
                 if (mediaTrackConstraints) {
                     await setMediaTrackConstraints(capabilities, track, mediaTrackConstraints);
                     console.log('Set MediaTrackConstraints ', mediaTrackConstraints);
