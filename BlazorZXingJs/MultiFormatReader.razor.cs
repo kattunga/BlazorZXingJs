@@ -91,6 +91,7 @@ namespace BlazorZXingJs
         private class StartResponse
         {
             public string? DeviceId { get; set; }
+            public MediaTrackCapabilities? DeviceCapabilities { get; set; }
             public MediaDeviceInfo[]? Devices { get; set; }
             public string? ErrorName { get; set; }
             public string? ErrorMessage { get; set; }
@@ -137,18 +138,6 @@ namespace BlazorZXingJs
             }
         }
 
-        // public async Task SetVideoProperties(MediaTrackConstraints? videoProperties)
-        // {
-        //     if (_videoProperties != videoProperties)
-        //     {
-        //         if (_jsModule != null && !_starting)
-        //         {
-        //             await _jsModule.InvokeAsync<string>("setVideoProperties", videoProperties);
-        //         }
-        //         _videoProperties = videoProperties;
-        //     }
-        // }
-
         public async Task StartDecoding()
         {
             if (_jsModule != null && !_starting)
@@ -168,9 +157,16 @@ namespace BlazorZXingJs
                         _videoInputDevices = new List<MediaDeviceInfo>(resp.Devices);
                     }
 
-                    _domException = resp.ErrorName;
+                    if (resp.ErrorName != null)
+                    {
+                        _domException = resp.ErrorName + ": " + resp.ErrorMessage;
+                    }
+                    else
+                    {
+                        _domException = null;
+                    }
 
-                    await OnStartVideo.InvokeAsync(new MultiFormatReaderStartEventArgs(_videoDeviceId, _videoInputDevices, resp.ErrorName, resp.ErrorMessage));
+                    await OnStartVideo.InvokeAsync(new MultiFormatReaderStartEventArgs(_videoDeviceId, resp.DeviceCapabilities, _videoInputDevices, resp.ErrorName, resp.ErrorMessage));
                 }
                 finally
                 {

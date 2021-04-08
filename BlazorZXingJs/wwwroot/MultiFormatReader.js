@@ -112,10 +112,7 @@ async function listVideoInputDevices () {
     return devices;
 }
 
-async function setMediaTrackConstraints(track, mediaTrackConstraints) {
-    const capabilities = await track.getCapabilities();
-    console.log('Get GetCapabilities MediaTrackConstraints ', capabilities);
-
+async function setMediaTrackConstraints(capabilities, track, mediaTrackConstraints) {
     if (!!capabilities['torch'] || ('fillLightMode' in capabilities && capabilities.fillLightMode.length !== 0)) {
         track.applyConstraints({
             advanced: [{torch: mediaTrackConstraints.torch}]
@@ -124,21 +121,28 @@ async function setMediaTrackConstraints(track, mediaTrackConstraints) {
 }
 
 export async function setVideoProperties(mediaTrackConstraints) {
-    var deviceId = undefined;
+    let deviceId = undefined;
+    let capabilities = undefined;
 
     if (videoStream) {
         const videoTracks = videoStream.getVideoTracks();
         if (videoTracks.length > 0) {
             const track = videoTracks[0];
+
             deviceId = track.getSettings().deviceId;
-            if (mediaTrackConstraints) {
-                await setMediaTrackConstraints(track, mediaTrackConstraints);
-                console.log('Set MediaTrackConstraints ', mediaTrackConstraints);
+
+            if (typeof track.getCapabilities == 'function') {
+                capabilities = track.getCapabilities();
+
+                if (mediaTrackConstraints) {
+                    await setMediaTrackConstraints(capabilities, track, mediaTrackConstraints);
+                    console.log('Set MediaTrackConstraints ', mediaTrackConstraints);
+                }
             }
         }
     }
 
-    return deviceId;
+    return [deviceId, capabilities];
 }
 
 export async function startDecoding (deviceId, format, videoElementId, targetInputId, mediaTrackConstraints) {
@@ -151,6 +155,7 @@ export async function startDecoding (deviceId, format, videoElementId, targetInp
 
     try {
 
+        let capabilities = undefined;
         let videoConstraints = {};
 
         if (!deviceId) {
@@ -163,7 +168,7 @@ export async function startDecoding (deviceId, format, videoElementId, targetInp
 
         videoStream = await navigator.mediaDevices.getUserMedia(constraints);
 
-        deviceId = await setVideoProperties(mediaTrackConstraints);
+        [deviceId, capabilities] = await setVideoProperties(mediaTrackConstraints);
 
         codeReader.decodeFromStream(videoStream, videoElementId, (result, err) => {
             if (result) {
@@ -202,6 +207,7 @@ export async function startDecoding (deviceId, format, videoElementId, targetInp
         var devices = await listVideoInputDevices();
         var resp = {
             deviceId: deviceId,
+            deviceCapabilities: capabilities,
             devices: devices,
             errorName: null,
             errorMessage: null
@@ -214,6 +220,7 @@ export async function startDecoding (deviceId, format, videoElementId, targetInp
 
         var resp = {
             deviceId: null,
+            deviceCapabilities: null,
             devices: [],
             errorName: err.name,
             errorMessage: err.message

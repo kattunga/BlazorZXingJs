@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-    <Version>0.5.7</Version>
+    <Version>0.5.8</Version>
     <Nullable>enable</Nullable>
     <Authors>Christian Pradelli</Authors>
 	  <Company />
