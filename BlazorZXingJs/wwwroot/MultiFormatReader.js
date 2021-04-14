@@ -117,20 +117,29 @@ async function setMediaTrackConstraints(capabilities, track, mediaTrackConstrain
 
     if ('focusMode' in capabilities && capabilities.focusMode.includes(mediaTrackConstraints.focusMode))
     {
+        if (!advancedConstraints) {
+            advancedConstraints = new Object();
+        }
         advancedConstraints.focusMode = mediaTrackConstraints.focusMode;
     }
 
     if (!!capabilities['torch']) {
+        if (!advancedConstraints) {
+            advancedConstraints = new Object();
+        }
         advancedConstraints.torch = mediaTrackConstraints.torch;
     }
 
     if ('zoom' in capabilities && mediaTrackConstraints.zoom) {
+        if (!advancedConstraints) {
+            advancedConstraints = new Object();
+        }
         advancedConstraints.zoom = mediaTrackConstraints.zoom;
     }
 
     if (advancedConstraints) {
         track.applyConstraints({
-            advanced: [Constraints]
+            advanced: [advancedConstraints]
         });
     }
 }
