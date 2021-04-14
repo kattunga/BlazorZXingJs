@@ -115,7 +115,7 @@ namespace BlazorZXingJs
             if (_setProperties)
             {
                 _setProperties = false;
-                await _jsModule.InvokeAsync<string>("setVideoProperties", _videoProperties);
+                await _jsModule.InvokeAsync<object>("setVideoProperties", _videoProperties);
             }
         }
 
