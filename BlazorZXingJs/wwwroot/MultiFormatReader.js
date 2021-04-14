@@ -113,9 +113,24 @@ async function listVideoInputDevices () {
 }
 
 async function setMediaTrackConstraints(capabilities, track, mediaTrackConstraints) {
-    if (!!capabilities['torch'] || ('fillLightMode' in capabilities && capabilities.fillLightMode.length !== 0)) {
+    let advancedConstraints = undefined;
+
+    if ('focusMode' in capabilities && capabilities.focusMode.includes(mediaTrackConstraints.focusMode))
+    {
+        advancedConstraints.focusMode = mediaTrackConstraints.focusMode;
+    }
+
+    if (!!capabilities['torch']) {
+        advancedConstraints.torch = mediaTrackConstraints.torch;
+    }
+
+    if ('zoom' in capabilities && mediaTrackConstraints.zoom) {
+        advancedConstraints.zoom = mediaTrackConstraints.zoom;
+    }
+
+    if (advancedConstraints) {
         track.applyConstraints({
-            advanced: [{torch: mediaTrackConstraints.torch}]
+            advanced: [Constraints]
         });
     }
 }
@@ -145,7 +160,7 @@ export async function setVideoProperties(mediaTrackConstraints) {
     return [deviceId, capabilities];
 }
 
-export async function startDecoding (deviceId, format, videoElementId, targetInputId, mediaTrackConstraints) {
+export async function startDecoding (deviceId, format, videoElementId, callbackOrTargetInputId, mediaTrackConstraints) {
 
     initLibrary(format);
 
@@ -173,13 +188,22 @@ export async function startDecoding (deviceId, format, videoElementId, targetInp
         codeReader.decodeFromStream(videoStream, videoElementId, (result, err) => {
             if (result) {
                 console.log(result);
-                var el = document.getElementById(targetInputId);
-                if (el != null) {
-                    el.value = result.text;
-                    el.dispatchEvent(new Event('change'));
-                }
-                else {
-                    console.error('element '+targetInputId+' not found');
+
+                // If the callback is an input id, set the value on it
+				if (typeof callbackOrTargetInputId == 'string') {
+					var el = document.getElementById(callbackOrTargetInputId);
+					if (el != null) {
+                        el.value = result.text;
+                        el.dispatchEvent(new Event('change'));
+					}
+					else {
+                        console.error('element '+callbackOrTargetInputId+' not found');
+					}
+				}
+
+                // If the callback is a function, execute it
+				if (typeof callbackOrTargetInputId=='function') {
+                    callbackOrTargetInputId(result);
                 }
             }
             if (err) {
